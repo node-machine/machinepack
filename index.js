@@ -1,7 +1,16 @@
-module.exports = require('node-machine').pack({
+/**
+ * Module dependencies
+ */
+
+var NodeMachine = require('node-machine');
+
+
+module.exports = NodeMachine.pack({
   pkg: {
     machinepack: {
-      machines: []
+      machines: [
+        'dehydrate-machinepack'
+      ]
     }
   },
   dir: require('path').resolve(__dirname, 'lib')
