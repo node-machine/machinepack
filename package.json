@@ -18,11 +18,12 @@
   "machinepack": {
     "dir": "./lib/",
     "machines": [
-      "dehydrate-machinepack"
+      "dehydrate-machines"
     ]
   },
   "dependencies": {
     "node-machine": "^0.3.0",
-    "machinepack-fs": "^0.2.0"
+    "machinepack-fs": "^0.2.0",
+    "lodash": "^2.4.1"
   }
 }

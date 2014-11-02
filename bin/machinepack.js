@@ -5,11 +5,13 @@
  * Module dependencies
  */
 
+var Path = require('path');
+var _ = require('lodash');
 var MachinepackUtils = require('../');
 
 
 // Arguments
-var inputs = {
+var INPUTS = {
 
   // `dir` is the path to the machinepack of interest
   // (defaults to process.cwd())
@@ -18,14 +20,23 @@ var inputs = {
 };
 
 
-MachinepackUtils.dehydrateMachinepack({
-  dir: dir
+MachinepackUtils.dehydrateMachines({
+  dir: INPUTS.dir
 }).exec({
-  success: function (){
-    console.log('Success!');
+  success: function (machines){
+    console.log();
+    console.log('Machines in "%s":\n',
+      INPUTS.dir,
+      (_.map(machines, function (machine){
+        return ''+
+        ' • ' + (machine.friendlyName || machine.identity) +
+                (machine.description ? '      (' + machine.description + ')' : '');
+      })).join('\n')
+    );
+    console.log();
   },
   error: function (err){
-    console.error('Error listing contents of "%s":', dir);
+    console.error('Error listing contents of "%s":', INPUTS.dir);
     console.error(err);
     return;
   }
