@@ -1,8 +1,11 @@
 {
   "name": "machinepack",
   "version": "0.0.0",
-  "description": "CLI tool for building machinepacks",
+  "description": "Library and CLI tool for working with machinepacks",
   "main": "index.js",
+  "bin": {
+    "machinepack": "./bin/machinepack.js"
+  },
   "scripts": {
     "test": "node ./node_modules/mocha/bin -t 10000"
   },
