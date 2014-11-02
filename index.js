@@ -6,12 +6,6 @@ var NodeMachine = require('node-machine');
 
 
 module.exports = NodeMachine.pack({
-  pkg: {
-    machinepack: {
-      machines: [
-        'dehydrate-machinepack'
-      ]
-    }
-  },
+  pkg: require('./package.json'),
   dir: require('path').resolve(__dirname, 'lib')
 });
