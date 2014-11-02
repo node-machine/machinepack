@@ -1,0 +1,15 @@
+{
+  "name": "machinepack",
+  "version": "0.0.0",
+  "description": "CLI tool for building machinepacks",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./node_modules/mocha/bin -t 10000"
+  },
+  "keywords": [
+    "node-machine",
+    "utility"
+  ],
+  "author": "Mike McNeil",
+  "license": "MIT"
+}
