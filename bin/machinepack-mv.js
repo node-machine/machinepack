@@ -29,6 +29,22 @@ if (!program.args[1]) {
 var originalIdentity = program.args[0];
 var newIdentity = program.args[1];
 
+// TODO:
+// Machinepacks.moveMachine({
+//   source: originalIdentity,
+//   destination: newIdentity,
+//   dir: process.cwd()
+// }).exec({
+//   error: function (err){
+//     console.error('Unexpected error occurred:\n',err);
+//   },
+//   success: function (){
+//     console.log('Machine with former identity: `%s` is now: `%s`', originalIdentity, newIdentity);
+//   }
+// });
+
+
+
 Machinepacks.getMachinesDir({
   dir: Path.resolve(process.cwd())
 }).exec({

@@ -26,7 +26,7 @@ if (!program.args[0]) {
 var identity = program.args[0];
 
 
-Machinepacks.rm({
+Machinepacks.removeMachine({
   identity: identity,
   dir: Path.resolve(process.cwd())
 }).exec({
