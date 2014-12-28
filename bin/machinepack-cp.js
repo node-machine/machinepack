@@ -37,7 +37,7 @@ Machinepacks.getMachinesDir({
   },
   success: function (pathToMachines){
 
-    Filesystem.mv({
+    Filesystem.cp({
       source: Path.resolve(pathToMachines, originalIdentity+'.js'),
       destination: Path.resolve(pathToMachines, newIdentity+'.js')
     }).exec({
@@ -56,7 +56,6 @@ Machinepacks.getMachinesDir({
           },
           success: function (jsonData){
             try {
-              jsonData.machinepack.machines = _.difference(jsonData.machinepack.machines, [originalIdentity]);
               jsonData.machinepack.machines = _.union(jsonData.machinepack.machines, [newIdentity]);
             }
             catch (e) {
@@ -73,7 +72,7 @@ Machinepacks.getMachinesDir({
               },
               success: function (){
                 // Done.
-                console.log('Machine with former identity: `%s` is now: `%s`', originalIdentity, newIdentity);
+                console.log('Copied: `%s` to new machine: `%s`', originalIdentity, newIdentity);
               }
             });
           }

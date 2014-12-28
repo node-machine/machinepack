@@ -4,10 +4,13 @@
   "description": "CLI tool for working with machinepacks and their machines.",
   "bin": {
     "machinepack": "./bin/machinepack.js",
+    "machinepack-init": "./bin/machinepack-init.js",
     "machinepack-add": "./bin/machinepack-add.js",
     "machinepack-ls": "./bin/machinepack-ls.js",
     "machinepack-mv": "./bin/machinepack-mv.js",
-    "machinepack-rm": "./bin/machinepack-rm.js"
+    "machinepack-cp": "./bin/machinepack-cp.js",
+    "machinepack-rm": "./bin/machinepack-rm.js",
+    "machinepack-exec": "./bin/machinepack-exec.js"
   },
   "scripts": {
     "test": "node ./node_modules/mocha/bin -t 10000"
