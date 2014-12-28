@@ -35,6 +35,16 @@ fn({
   },
   success: function (result){
     console.log('* * * DONE * * *');
+
+    console.log('Ran machine: `%s`', identity);
+    console.log('with inputs:\n`%s`', 'TODO');
+    console.log('Machine called the `%s` exit', chalk.blue(result.exit));
+    if (!result.void) {
+      console.log('and sent back a return value (encoded as JSON below):\n', result.jsonValue);
+    }
+    else {
+      console.log('No value was returned.');
+    }
   }
 }, {
   log: console.log
