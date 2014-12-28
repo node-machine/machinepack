@@ -23,7 +23,28 @@ if (!program.args[0]) {
 var identity = program.args[0];
 
 
-(function (inputs, exits, env){
+fn({
+  identity: identity,
+  dir: process.cwd()
+}, {
+  error: function (err){
+    console.error('Unexpected error occurred:\n',err);
+  },
+  notFound: function (){
+    console.error('Cannot run machine `'+chalk.red(identity)+'`.  No machine with that identity exists in this machinepack.');
+  },
+  success: function (result){
+    console.log('* * * DONE * * *');
+  }
+}, {
+  log: console.log
+});
+
+
+
+
+
+function fn (inputs, exits, env){
 
   // Dependencies
   var Path = require('path');
@@ -47,17 +68,16 @@ var identity = program.args[0];
         },
         success: function (jsonData){
           try {
-            if (!_.contains(jsonData.machinepack.machines, identity)) {
-
-              return;
+            if (!_.contains(jsonData.machinepack.machines, inputs.identity)) {
+              return exits.notFound();
             }
-            jsonData.machinepack.machines = _.difference(jsonData.machinepack.machines, [identity]);
+            jsonData.machinepack.machines = _.difference(jsonData.machinepack.machines, [inputs.identity]);
           }
           catch (e) {
             return exits.error(e);
           }
 
-          var pathToMachine = Path.resolve(pathToMachines, identity+'.js');
+          var pathToMachine = Path.resolve(pathToMachines, inputs.identity+'.js');
 
           env.log();
           // console.log(chalk.red('TODO: .exec() implementation is not finished yet!'));
@@ -66,7 +86,6 @@ var identity = program.args[0];
           // env.log(chalk.gray('(i.e. interactive prompt that asks for input values...'));
           var configuredInputValues = {};
 
-          env.log(chalk.gray('Running machine at', pathToMachine));
           Machinepacks.runMachine({
             path: pathToMachine,
             inputs: configuredInputValues
@@ -86,18 +105,4 @@ var identity = program.args[0];
   });
 
 
-})({
-  dir: process.cwd()
-}, {
-  error: function (err){
-    console.error('Unexpected error occurred:\n',err);
-  },
-  notFound: function (){
-    console.error('Cannot run machine `'+chalk.red(identity)+'`.  No machine with that identity exists in this machinepack.');
-  },
-  success: function (result){
-    console.log('* * * DONE * * *');
-  }
-}, {
-  log: console.log
-});
+}
