@@ -7,7 +7,6 @@
 var Path = require('path');
 var _ = require('lodash');
 var chalk = require('chalk');
-var Filesystem = require('machinepack-fs');
 var Machinepacks = require('machinepack-machinepacks');
 var program = require('commander');
 
