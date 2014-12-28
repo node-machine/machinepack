@@ -4,11 +4,8 @@
  * Module dependencies
  */
 
-var Path = require('path');
-var _ = require('lodash');
 var program = require('commander');
 var chalk = require('chalk');
-var Filesystem = require('machinepack-fs');
 var Machinepacks = require('machinepack-machinepacks');
 
 
@@ -17,18 +14,17 @@ program
   .usage('[options] <identity>')
   .parse(process.argv);
 
-
-if (!program.args[0]) {
+var identity = program.args[0];
+if (!identity) {
   console.error('`identity` required');
   process.exit(1);
 }
 
-var identity = program.args[0];
 
 
 Machinepacks.removeMachine({
   identity: identity,
-  dir: Path.resolve(process.cwd())
+  dir: process.cwd()
 }).exec({
   error: function (err){
     console.error('Unexpected error occurred:\n',err);

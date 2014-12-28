@@ -16,18 +16,19 @@ program
   .parse(process.argv);
 
 
-if (!program.args[0]) {
+var originalIdentity = program.args[0];
+if (!originalIdentity) {
   console.error('`originalIdentity` required');
   process.exit(1);
 }
-if (!program.args[1]) {
+
+var newIdentity = program.args[1];
+if (!newIdentity) {
   console.error('`newIdentity` required');
   process.exit(1);
 }
 
 
-var originalIdentity = program.args[0];
-var newIdentity = program.args[1];
 
 // TODO:
 // Machinepacks.moveMachine({
