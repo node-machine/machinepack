@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 
-
 /**
  * Module dependencies
  */
 
 var Path = require('path');
+var program = require('commander');
 var Machinepacks = require('machinepack-machinepacks');
+
+
+program
+  .usage('[options]')
+  .parse(process.argv);
 
 
 Machinepacks.promptAboutNewMachine().exec({

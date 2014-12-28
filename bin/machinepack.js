@@ -1,13 +1,18 @@
 #!/usr/bin/env node
 
-
 /**
  * Module dependencies
  */
 
-var Path = require('path');
-var _ = require('lodash');
+var program = require('commander');
 
 
 
-// TODO: show options or something
+program
+  .version(require('../package.json').version)
+  .command('list', 'list machines')
+  .command('add', 'add a new machine')
+  .command('rm <identity>', 'delete existing machine')
+  .command('mv <originalIdentity> <newIdentity>', 'rename machine')
+  .parse(process.argv);
+

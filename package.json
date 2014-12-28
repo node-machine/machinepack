@@ -4,7 +4,10 @@
   "description": "CLI tool for working with machinepacks and their machines.",
   "main": "index.js",
   "bin": {
-    "machinepack": "./bin/machinepack.js"
+    "machinepack": "./bin/machinepack.js",
+    "machinepack-add": "./bin/machinepack-add.js",
+    "machinepack-mv": "./bin/machinepack-mv.js",
+    "machinepack-rm": "./bin/machinepack-rm.js"
   },
   "scripts": {
     "test": "node ./node_modules/mocha/bin -t 10000"
@@ -17,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "machine": "^1.1.0",
-    "lodash": "^2.4.1"
+    "lodash": "^2.4.1",
+    "commander": "^2.5.1"
   }
 }
