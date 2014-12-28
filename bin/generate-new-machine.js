@@ -29,7 +29,7 @@ Machinepacks.promptAboutNewMachine().exec({
       defaultExit: 'success',
       exits: {
         error: {
-          description: 'Unexpected error.'
+          description: 'Unexpected error occurred.'
         },
         success: {
           description: 'Done.',
@@ -42,6 +42,7 @@ Machinepacks.promptAboutNewMachine().exec({
       },
       success: function (){
         // Done!
+        console.log('New machine (`%s`) successfully added to machinepack.', machineMetadata.identity);
       }
     });
   }
