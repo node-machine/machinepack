@@ -17,4 +17,7 @@ program
 .command('mv <originalIdentity> <newIdentity>', 'rename machine')
 .parse(process.argv);
 
-console.log(program.help());
+
+if (program.args.length === 0) {
+  console.log(program.help());
+}
