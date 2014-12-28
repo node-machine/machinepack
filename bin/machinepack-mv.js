@@ -38,8 +38,8 @@ Machinepacks.getMachinesDir({
   success: function (pathToMachines){
     // Completely remove a file or directory (like rm -rf).
     Filesystem.mv({
-      source: Path.resolve(pathToMachines, originalIdentity),
-      destination: Path.resolve(pathToMachines, newIdentity)
+      source: Path.resolve(pathToMachines, originalIdentity+'.js'),
+      destination: Path.resolve(pathToMachines, newIdentity+'.js')
     }).exec({
 
       error: function (err){

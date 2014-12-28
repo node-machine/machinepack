@@ -54,7 +54,7 @@ Machinepacks.getMachinesDir({
 
         // Completely remove a file or directory (like rm -rf).
         Filesystem.rmrf({
-          dir: Path.resolve(pathToMachines, identity)
+          dir: Path.resolve(pathToMachines, identity+'.js')
         }).exec({
 
           error: function (err){
