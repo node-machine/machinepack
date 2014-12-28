@@ -17,7 +17,6 @@
   "license": "MIT",
   "dependencies": {
     "machine": "^1.1.0",
-    "machinepack-fs": "^0.2.0",
     "lodash": "^2.4.1"
   }
 }

@@ -13,9 +13,6 @@ Machinepacks.promptAboutNewMachine().exec({
   error: function (err) {
     console.error('Unexpected error occurred:\n', err);
   },
-  cancelled: function (){
-    // Fail silently if the user cancels the interactive prompt.
-  },
   success: function (answers){
 
     // TODO: consider another machine to validate/sanitize this stuff
