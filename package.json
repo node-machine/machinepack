@@ -2,7 +2,6 @@
   "name": "machinepack",
   "version": "0.0.1",
   "description": "CLI tool for working with machinepacks and their machines.",
-  "main": "index.js",
   "bin": {
     "machinepack": "./bin/machinepack.js",
     "machinepack-add": "./bin/machinepack-add.js",
@@ -14,7 +13,11 @@
   },
   "keywords": [
     "node-machine",
-    "utility"
+    "machinepack",
+    "machinepacks",
+    "machines",
+    "utility",
+    "cli"
   ],
   "author": "Mike McNeil",
   "license": "MIT",
