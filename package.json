@@ -5,6 +5,7 @@
   "bin": {
     "machinepack": "./bin/machinepack.js",
     "machinepack-add": "./bin/machinepack-add.js",
+    "machinepack-ls": "./bin/machinepack-ls.js",
     "machinepack-mv": "./bin/machinepack-mv.js",
     "machinepack-rm": "./bin/machinepack-rm.js"
   },
@@ -23,6 +24,8 @@
   "license": "MIT",
   "dependencies": {
     "lodash": "^2.4.1",
-    "commander": "^2.5.1"
+    "commander": "^2.5.1",
+    "machinepack-fs": "^1.4.2",
+    "chalk": "^0.5.1"
   }
 }
