@@ -34,7 +34,7 @@ Machinepacks.promptAboutNewMachine().exec({
         },
         success: {
           description: 'Done.',
-          example: '...'
+          example: 'TODO'
         }
       },
     }).exec({
