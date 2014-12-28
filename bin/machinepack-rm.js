@@ -27,6 +27,7 @@ var identity = program.args[0];
 
 
 Machinepacks.rm({
+  identity: identity,
   dir: Path.resolve(process.cwd())
 }).exec({
   error: function (err){
