@@ -24,3 +24,9 @@ program
 if (program.args.length === 0) {
   console.log(program.help());
 }
+
+
+// Aliases:
+if (program.args[0] === 'machines') {
+  program.args[0] = 'ls';
+}

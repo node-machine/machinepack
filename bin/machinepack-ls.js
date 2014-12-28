@@ -21,6 +21,10 @@ Machinepacks.listMachines({
   error: function (err){
     console.error('Unexpected error occurred:\n', err);
   },
+  notMachinepack: function (){
+    console.error('This is '+chalk.red('not a machinepack')+'.');
+    console.error('Be sure and check that the package.json file has a valid `machinepack` property, or run `machinepack init` if you aren\'t sure.');
+  },
   success: function (machines){
     console.log();
     if (machines.length === 0){
