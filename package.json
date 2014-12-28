@@ -22,7 +22,6 @@
   "author": "Mike McNeil",
   "license": "MIT",
   "dependencies": {
-    "machine": "^1.1.0",
     "lodash": "^2.4.1",
     "commander": "^2.5.1"
   }
