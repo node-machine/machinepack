@@ -16,23 +16,7 @@ program
 .parse(process.argv);
 
 
-(function listMachines(inputs, exits){
-  Filesystem.readJson({
-    source: Path.resolve(inputs.dir, 'package.json')
-  }).exec({
-    error: function (err){
-      return exits.error(err);
-    },
-    success: function (jsonData){
-      try {
-        return exits.success(jsonData.machinepack.machines);
-      }
-      catch (e) {
-        return exits.error(e);
-      }
-    }
-  });
-})({
+Machinepacks.listMachines({
   dir: process.cwd()
 }, {
   error: function (err){
