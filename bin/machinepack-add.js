@@ -20,16 +20,12 @@ Machinepacks.promptAboutNewMachine().exec({
   },
   success: function (answers){
 
-    // TODO: consider another machine to validate/sanitize this stuff
-    // (even so, it would probably be taken care of within `promptAboutNewMachine()`)
-    var machineMetadata = answers;
-
     Machinepacks.generateNewMachine({
       machinepackRootPath: process.cwd(),
-      identity: machineMetadata.identity,
-      friendlyName: machineMetadata.friendlyName,
-      description: machineMetadata.description,
-      extendedDescription: machineMetadata.extendedDescription,
+      identity: answers.identity,
+      friendlyName: answers.friendlyName,
+      description: answers.description,
+      extendedDescription: answers.extendedDescription,
       inputs: {},
       defaultExit: 'success',
       exits: {
@@ -47,7 +43,7 @@ Machinepacks.promptAboutNewMachine().exec({
       },
       success: function (){
         // Done!
-        console.log('New machine (`%s`) successfully added to machinepack.', machineMetadata.identity);
+        console.log('New machine (`%s`) successfully added to machinepack.', answers.identity);
       }
     });
   }
