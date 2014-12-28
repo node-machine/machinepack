@@ -1,7 +1,7 @@
 {
   "name": "machinepack",
   "version": "0.0.1",
-  "description": "Library and CLI tool for working with machinepacks",
+  "description": "CLI tool for working with machinepacks and their machines.",
   "main": "index.js",
   "bin": {
     "machinepack": "./bin/machinepack.js"
@@ -15,14 +15,8 @@
   ],
   "author": "Mike McNeil",
   "license": "MIT",
-  "machinepack": {
-    "dir": "./lib/",
-    "machines": [
-      "dehydrate-machines"
-    ]
-  },
   "dependencies": {
-    "node-machine": "^0.3.0",
+    "machine": "^1.1.0",
     "machinepack-fs": "^0.2.0",
     "lodash": "^2.4.1"
   }
