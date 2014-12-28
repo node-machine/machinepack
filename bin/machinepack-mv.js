@@ -65,7 +65,8 @@ Machinepacks.getMachinesDir({
             }
             Filesystem.writeJson({
               json: jsonData,
-              destination: Path.resolve(process.cwd(), 'package.json')
+              destination: Path.resolve(process.cwd(), 'package.json'),
+              force: true
             }).exec({
               error: function (err){
                 console.error('Unexpected error occurred:\n',err);
