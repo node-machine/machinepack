@@ -10,7 +10,9 @@ var chalk = require('chalk');
 
 program
 .version(require('../package.json').version)
-.usage(chalk.gray('[options]')+' '+chalk.bold('<command>'))
+// Allow unknown options.
+.unknownOption = function NOOP(){};
+program.usage(chalk.gray('[options]')+' '+chalk.bold('<command>'))
 .command('init', 'initialize the current module as a machinepack')
 .command('ls', 'list machines')
 .command('add', 'add a new machine')
@@ -20,8 +22,6 @@ program
 .command('cp <originalIdentity> <newIdentity>', 'copy machine')
 .parse(process.argv);
 
-// Allow unknown options.
-program.unknownOption = function NOOP(){};
 
 console.log(program);
 
