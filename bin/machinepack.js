@@ -20,6 +20,10 @@ program
 .command('cp <originalIdentity> <newIdentity>', 'copy machine')
 .parse(process.argv);
 
+// Allow unknown options.
+program.unknownOption = function NOOP(){};
+
+console.log(program);
 
 if (program.args.length === 0) {
   console.log(program.help());
