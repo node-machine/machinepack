@@ -222,6 +222,10 @@ var machineMethodName;
     console.log(chalk.white((function (){
       var cmd = ' machinepack exec '+identity;
       _.each(result.withInputs, function (configuredInput){
+
+        // Skip protected inputs (they need to be re-entered)
+        if (configuredInput.protect) return;
+
         cmd += ' ';
         cmd += '--'+configuredInput.name+'=\''+configuredInput.value.replace(/'/g,'\'\\\'\'')+'\'';
       });
