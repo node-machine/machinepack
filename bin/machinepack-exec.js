@@ -162,10 +162,10 @@ var identity = program.args[0];
     console.log('');
     // console.log(' using input values:\n', chalk.bold(chalk.yellow(identity)), _.reduce(result.withInputs, function(memo, configuredInput) {
 
-    console.log(' Used input values:\n', _.reduce(result.withInputs, function(memo, configuredInput) {
-      memo += '\n • ' + configuredInput.name + ' : ' + chalk.gray(JSON.stringify(configuredInput.value));
-      return memo;
-    }, ''));
+    // console.log(' Used input values:\n', _.reduce(result.withInputs, function(memo, configuredInput) {
+    //   memo += '\n • ' + configuredInput.name + ' : ' + chalk.gray(JSON.stringify(configuredInput.value));
+    //   return memo;
+    // }, ''));
     // console.log('');
     // console.log(' Triggered '+chalk.blue(result.exited.exit)+' callback'+(function (){
     //   if (!result.exited.void) {
