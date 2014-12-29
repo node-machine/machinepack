@@ -61,6 +61,8 @@ var identity = program.args[0];
     var Filesystem = require('machinepack-fs');
     var Machinepacks = require('machinepack-machinepacks');
 
+    var machinepackPath = Path.resolve(process.cwd(), inputs.dir);
+
     Filesystem.readJson({
       source: Path.resolve(process.cwd(), 'package.json')
     }).exec({
@@ -112,7 +114,9 @@ var identity = program.args[0];
             env.log();
 
             Machinepacks.runMachine({
-              path: pathToMachine
+              // path: pathToMachine
+              machinepackPath: machinepackPath,
+              identity: inputs.identity
             }).exec({
               error: function (err){
                 return exits.error(err);
