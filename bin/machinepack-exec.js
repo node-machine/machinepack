@@ -9,6 +9,12 @@ var chalk = require('chalk');
 var Machinepacks = require('machinepack-machines');
 var Machine = require('machine');
 var _ = require('lodash');
+var yargs = require('yargs');
+
+// Build CLI options
+var cliOpts = yargs.argv;
+delete cliOpts._;
+delete cliOpts.$0;
 
 program
   .usage('[options] <identity>')
@@ -99,8 +105,10 @@ var identity = program.args[0];
           });
         })(identity);
 
-        console.log();
-        console.log(chalk.gray('%s.%s()'), chalk.bold(chalk.white(machinepackVarName)), chalk.bold(chalk.yellow(machineMethodName)));
+        console.log('\n'+chalk.gray(' Running machine...'));
+        console.log('___'+repeatChar('_')+'_˛');
+        console.log('   '+repeatChar(' ')+'  ');
+        console.log('   '+chalk.gray('%s.%s()'), chalk.bold(chalk.white(machinepackVarName)), chalk.bold(chalk.yellow(machineMethodName)));
 
         Machinepacks.getMachinesDir({
           dir: Path.resolve(process.cwd(), inputs.dir)
@@ -112,11 +120,20 @@ var identity = program.args[0];
 
             var pathToMachine = Path.resolve(pathToMachines, inputs.identity+'.js');
 
-            env.log();
+            // env.log();
 
             Machinepacks.runMachineInteractive({
               machinepackPath: machinepackPath,
-              identity: inputs.identity
+              identity: inputs.identity,
+              inputValues: (function (){
+                return _.reduce(cliOpts, function (memo, inputValue, inputName){
+                  memo.push({
+                    name: inputName,
+                    value: inputValue
+                  });
+                  return memo;
+                }, []);
+              })()
             }).exec({
               error: function (err){
                 return exits.error(err);
@@ -125,7 +142,6 @@ var identity = program.args[0];
                 return exits.invalidMachine(err);
               },
               success: function (result){
-                // env.log(chalk.gray('  then a log explaining which exit was traversed and the return value, if relevant)'));
                 return exits.success(result);
               }
             });
@@ -158,14 +174,19 @@ var identity = program.args[0];
     // console.log(chalk.white(' * * * * * * * * * * * * * * * * * * * * * * * * '));
     // console.log(chalk.white(' *                  OUTCOME                    * '));
     // console.log(chalk.white(' * * * * * * * * * * * * * * * * * * * * * * * * '));
-    console.log('');
+    // console.log('');
     // console.log(' using input values:\n', chalk.bold(chalk.yellow(identity)), _.reduce(result.withInputs, function(memo, configuredInput) {
 
     // console.log(' Used input values:\n', _.reduce(result.withInputs, function(memo, configuredInput) {
-    //   memo += '\n • ' + configuredInput.name + ' : ' + chalk.gray(JSON.stringify(configuredInput.value));
-    //   return memo;
-    // }, ''));
-    // console.log('');
+    console.log('  ');
+    console.log(_.reduce(result.withInputs, function(memo, configuredInput) {
+      memo += '   » ' + chalk.cyan(configuredInput.name) + ' ' + chalk.gray(JSON.stringify(configuredInput.value));
+      memo += '\n';
+      return memo;
+    }, ''));
+    console.log('___'+repeatChar('_')+'_¸ ');
+    console.log('  | ');
+
     // console.log(' Triggered '+chalk.blue(result.exited.exit)+' callback'+(function (){
     //   if (!result.exited.void) {
     //     return ', returning:\n ' + chalk.gray(result.exited.jsonValue);
@@ -173,14 +194,17 @@ var identity = program.args[0];
     //   return '.';
     // })());
 
-    console.log(' The machine triggered its '+chalk.bold((function (){
+    // Determine chalk color
+    var exitColor = (function (){
       if (result.exited.exit === 'error') {
-        return chalk.red(result.exited.exit);
+        return 'red';
       }
-      return chalk.blue(result.exited.exit);
-    })())+' exit'+(function (){
+      return 'blue';
+    })();
+
+    console.log('  '+chalk.bold(chalk[exitColor]('•'))+' \n  The machine triggered its '+chalk.bold(chalk[exitColor](result.exited.exit))+' exit'+(function (){
       if (!result.exited.void) {
-        return ' and returned a value:\n '+chalk.gray(result.exited.inspectedValue);
+        return ' and returned a value:\n   '+chalk.gray(result.exited.inspectedValue);
       }
       return '.';
     })());
@@ -200,3 +224,18 @@ var identity = program.args[0];
 });
 
 
+
+/**
+ * private helper fn
+ * @param  {[type]} char  [description]
+ * @param  {[type]} width [description]
+ * @return {[type]}       [description]
+ */
+function repeatChar(char,width){
+  width = width || 60;
+  var borderStr = '';
+  for (var i=0;i<width;i++) {
+    borderStr += char;
+  }
+  return borderStr;
+}
