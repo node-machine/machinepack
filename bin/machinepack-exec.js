@@ -22,7 +22,6 @@ if (!program.args[0]) {
 
 var identity = program.args[0];
 
-
 (Machine.build({
   inputs: {
     identity: {
@@ -61,30 +60,51 @@ var identity = program.args[0];
     var Filesystem = require('machinepack-fs');
     var Machinepacks = require('machinepack-machinepacks');
 
-    Machinepacks.getMachinesDir({
-      dir: Path.resolve(process.cwd(), inputs.dir)
+    Filesystem.readJson({
+      source: Path.resolve(process.cwd(), 'package.json')
     }).exec({
       error: function (err){
         return exits.error(err);
       },
-      success: function (pathToMachines){
+      success: function (jsonData){
+        try {
+          if (!_.contains(jsonData.machinepack.machines, inputs.identity)) {
+            return exits.notFound();
+          }
+          jsonData.machinepack.machines = _.difference(jsonData.machinepack.machines, [inputs.identity]);
+        }
+        catch (e) {
+          return exits.error(e);
+        }
 
-        Filesystem.readJson({
-          source: Path.resolve(process.cwd(), 'package.json')
+        // Calculate appropriate variable name for machinepack
+        var machinepackVarName = (function (moduleName){
+          var varname = moduleName.replace(/^machinepack-/,'');
+          varname = varname.replace(/-[a-z]/ig,function (match){
+            return match.slice(1).toUpperCase();
+          });
+          varname = varname[0].toUpperCase() + varname.slice(1);
+          return varname;
+        })(jsonData.name);
+
+        // Calculate appropriate machine method name
+        // TODO: use machinepack-javascript to do this
+        var machineMethodName = (function(identity){
+          return identity.replace(/-[a-z]/ig, function (match) {
+            return match.slice(1).toUpperCase();
+          });
+        })(identity);
+
+        console.log();
+        console.log(chalk.gray('%s.%s()'), chalk.bold(chalk.white(machinepackVarName)), chalk.bold(chalk.yellow(machineMethodName)));
+
+        Machinepacks.getMachinesDir({
+          dir: Path.resolve(process.cwd(), inputs.dir)
         }).exec({
           error: function (err){
             return exits.error(err);
           },
-          success: function (jsonData){
-            try {
-              if (!_.contains(jsonData.machinepack.machines, inputs.identity)) {
-                return exits.notFound();
-              }
-              jsonData.machinepack.machines = _.difference(jsonData.machinepack.machines, [inputs.identity]);
-            }
-            catch (e) {
-              return exits.error(e);
-            }
+          success: function (pathToMachines){
 
             var pathToMachine = Path.resolve(pathToMachines, inputs.identity+'.js');
 
@@ -129,24 +149,43 @@ var identity = program.args[0];
   },
   success: function (result){
 
+    // console.log('');
+    // console.log(chalk.white(' * * * * * * * * * * * * * * * * * * * * * * * * '));
+    // console.log(chalk.white(' *                  OUTCOME                    * '));
+    // console.log(chalk.white(' * * * * * * * * * * * * * * * * * * * * * * * * '));
     console.log('');
-    console.log(chalk.white(' * * * * * * * * * * * * * * * * * * * * * * * * '));
-    console.log(chalk.white(' *                  OUTCOME                    * '));
-    console.log(chalk.white(' * * * * * * * * * * * * * * * * * * * * * * * * '));
-    console.log('');
-    console.log(' Ran %s machine using the following input values:\n', chalk.bold(chalk.yellow(identity)), _.reduce(result.withInputs, function(memo, configuredInput) {
-      memo += '\n • ' + configuredInput.name + ' : ' + chalk.gray(JSON.stringify(configuredInput.value));
-      return memo;
-    }, ''));
-    console.log('');
-    console.log(' Machine exited with `'+chalk.blue(result.exited.exit)+'`'+(function (){
+    // console.log(' using input values:\n', chalk.bold(chalk.yellow(identity)), _.reduce(result.withInputs, function(memo, configuredInput) {
+
+    // console.log(' using input values:\n', _.reduce(result.withInputs, function(memo, configuredInput) {
+    //   memo += '\n • ' + configuredInput.name + ' : ' + chalk.gray(JSON.stringify(configuredInput.value));
+    //   return memo;
+    // }, ''));
+    // console.log('');
+    // console.log(' Triggered '+chalk.blue(result.exited.exit)+' callback'+(function (){
+    //   if (!result.exited.void) {
+    //     return ', returning:\n ' + chalk.gray(result.exited.jsonValue);
+    //   }
+    //   return '.';
+    // })());
+
+    console.log(' The machine triggered its '+chalk.bold(chalk.blue(result.exited.exit))+' exit'+(function (){
       if (!result.exited.void) {
-        return ', returning:\n ' + chalk.gray(result.exited.jsonValue);
+        return ' and returned a value:\n '+chalk.gray(result.exited.jsonValue);
       }
       return '.';
     })());
     console.log();
-    // console.log(chalk.purple('(^ result value above is encoded as JSON for readability)'));
+    console.log();
+    console.log(chalk.white(' To run again:'));
+    console.log(chalk.white((function (){
+      var cmd = ' machinepack exec '+identity;
+      _.each(result.withInputs, function (configuredInput){
+        cmd += ' ';
+        cmd += '--'+configuredInput.name+'='+configuredInput.value;
+      });
+      return cmd;
+    })()));
+    console.log();
   }
 });
 
