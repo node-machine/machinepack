@@ -125,7 +125,6 @@ var machineMethodName;
           success: function (pathToMachines){
 
             var pathToMachine = Path.resolve(pathToMachines, inputs.identity+'.js');
-            console.log('made it after getMachinesDir');
 
             Machinepacks.runMachineInteractive({
               machinepackPath: machinepackPath,
