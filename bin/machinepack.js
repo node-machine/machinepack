@@ -6,6 +6,7 @@
 
 var program = require('commander');
 var chalk = require('chalk');
+var _ = require('lodash');
 
 
 program
@@ -13,7 +14,7 @@ program
 // Allow unknown options.
 .unknownOption = function NOOP(){};
 program.usage(chalk.gray('[options]')+' '+chalk.bold('<command>'))
-.command('init', 'initialize the current module as a machinepack')
+.command('init', 'make this a machinepack')
 .command('ls', 'list machines')
 .command('add', 'add a new machine')
 .command('exec <identity>', 'run machine')
@@ -22,8 +23,6 @@ program.usage(chalk.gray('[options]')+' '+chalk.bold('<command>'))
 .command('cp <originalIdentity> <newIdentity>', 'copy machine')
 .parse(process.argv);
 
-
-console.log(program);
 
 if (program.args.length === 0) {
   console.log(program.help());
