@@ -20,7 +20,7 @@ Machinepacks.promptAboutNewMachine().exec({
   },
   success: function (answers){
 
-    Machinepacks.generateNewMachine({
+    Machinepacks.addMachine({
       machinepackRootPath: process.cwd(),
       identity: answers.identity,
       friendlyName: answers.friendlyName,

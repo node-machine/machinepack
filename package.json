@@ -30,6 +30,6 @@
     "commander": "^2.5.1",
     "machinepack-fs": "^1.6.0",
     "chalk": "^0.5.1",
-    "machinepack-machinepacks": "^0.1.0"
+    "machinepack-machinepacks": "^0.2.0"
   }
 }
