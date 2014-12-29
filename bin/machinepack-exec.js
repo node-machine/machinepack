@@ -173,7 +173,12 @@ var identity = program.args[0];
     //   return '.';
     // })());
 
-    console.log(' The machine triggered its '+chalk.bold(chalk.blue(result.exited.exit))+' exit'+(function (){
+    console.log(' The machine triggered its '+chalk.bold((function (){
+      if (result.exited.exit === 'error') {
+        return chalk.red(result.exited.exit);
+      }
+      return chalk.blue(result.exited.exit);
+    })())+' exit'+(function (){
       if (!result.exited.void) {
         return ' and returned a value:\n '+chalk.gray(result.exited.inspectedValue);
       }
