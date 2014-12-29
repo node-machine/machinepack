@@ -92,7 +92,7 @@ program
 
           // If a friendlyName is not explicitly specified, build one from `identity`
           machinepackMetadata.friendlyName = (function determineSuitableFriendlyName (){
-            var friendlyName = (jsonData.machinepack&&jsonData.machinepack.friendlyName) || jsonData.identity;
+            var friendlyName = (jsonData.machinepack&&jsonData.machinepack.friendlyName) || machinepackMetadata.identity;
             // If friendlyname still has "machinepack-" prefix in it, wipe it out
             friendlyName = friendlyName.replace(/^machinepack-/, '');
 
