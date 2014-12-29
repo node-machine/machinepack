@@ -6,7 +6,7 @@
 
 var program = require('commander');
 var chalk = require('chalk');
-var Machinepacks = require('machinepack-machinepacks');
+var Machinepacks = require('machinepack-machines');
 
 
 

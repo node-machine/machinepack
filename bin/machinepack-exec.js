@@ -6,7 +6,7 @@
 
 var program = require('commander');
 var chalk = require('chalk');
-var Machinepacks = require('machinepack-machinepacks');
+var Machinepacks = require('machinepack-machines');
 var Machine = require('machine');
 var _ = require('lodash');
 
@@ -60,7 +60,7 @@ var identity = program.args[0];
     var Path = require('path');
     var _ = require('lodash');
     var Filesystem = require('machinepack-fs');
-    var Machinepacks = require('machinepack-machinepacks');
+    var Machinepacks = require('machinepack-machines');
 
     var machinepackPath = Path.resolve(process.cwd(), inputs.dir);
 
@@ -114,8 +114,7 @@ var identity = program.args[0];
 
             env.log();
 
-            Machinepacks.runMachine({
-              // path: pathToMachine
+            Machinepacks.runMachineInteractive({
               machinepackPath: machinepackPath,
               identity: inputs.identity
             }).exec({
