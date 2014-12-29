@@ -8,7 +8,7 @@ var program = require('commander');
 var chalk = require('chalk');
 var Machinepacks = require('machinepack-machinepacks');
 var Machine = require('machine');
-
+var _ = require('lodash');
 
 program
   .usage('[options] <identity>')
@@ -36,9 +36,18 @@ var identity = program.args[0];
   exits: {
     success: {
       example: {
-        exit: 'success',
-        jsonValue: '{"stuff": "things"}',
-        void: false
+        withInputs: [
+          {
+            name: 'foobar',
+            value: 'fiddle diddle'
+            // ^^^^^ this is ok because it's always a string entered on the CLI interactive prompt
+          }
+        ],
+        exited: {
+          exit: 'success',
+          jsonValue: '{"stuff": "things"}',
+          void: false
+        }
       }
     },
     error: {},
@@ -80,15 +89,9 @@ var identity = program.args[0];
             var pathToMachine = Path.resolve(pathToMachines, inputs.identity+'.js');
 
             env.log();
-            // console.log(chalk.red('TODO: .exec() implementation is not finished yet!'));
-
-
-            // env.log(chalk.gray('(i.e. interactive prompt that asks for input values...'));
-            var configuredInputValues = {};
 
             Machinepacks.runMachine({
-              path: pathToMachine,
-              inputs: configuredInputValues
+              path: pathToMachine
             }).exec({
               error: function (err){
                 return exits.error(err);
@@ -125,17 +128,25 @@ var identity = program.args[0];
     console.error('Cannot run machine `'+chalk.red(identity)+'`. Machine is invalid.  Error details:\n',err);
   },
   success: function (result){
-    console.log('* * * DONE * * *');
 
-    console.log('Ran machine: `%s`', identity);
-    console.log('with inputs:\n`%s`', 'TODO');
-    console.log('Machine called the `%s` exit', chalk.blue(result.exit));
-    if (!result.void) {
-      console.log('and sent back a return value (encoded as JSON below):\n', result.jsonValue);
-    }
-    else {
-      console.log('No value was returned.');
-    }
+    console.log('');
+    console.log(chalk.white(' * * * * * * * * * * * * * * * * * * * * * * * * '));
+    console.log(chalk.white(' *                  OUTCOME                    * '));
+    console.log(chalk.white(' * * * * * * * * * * * * * * * * * * * * * * * * '));
+    console.log('');
+    console.log(' Ran %s machine using the following input values:\n', chalk.bold(chalk.yellow(identity)), _.reduce(result.withInputs, function(memo, configuredInput) {
+      memo += '\n • ' + configuredInput.name + ' : ' + chalk.gray(JSON.stringify(configuredInput.value));
+      return memo;
+    }, ''));
+    console.log('');
+    console.log(' Machine exited with `'+chalk.blue(result.exited.exit)+'`'+(function (){
+      if (!result.exited.void) {
+        return ', returning:\n ' + chalk.gray(result.exited.jsonValue);
+      }
+      return '.';
+    })());
+    console.log();
+    // console.log(chalk.purple('(^ result value above is encoded as JSON for readability)'));
   }
 });
 
