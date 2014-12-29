@@ -4,6 +4,8 @@
   "description": "CLI tool for working with machinepacks and their machines.",
   "bin": {
     "machinepack": "./bin/machinepack.js",
+    "machinepack-about": "./bin/machinepack-about.js",
+    "machinepack-info": "./bin/machinepack-info.js",
     "machinepack-init": "./bin/machinepack-init.js",
     "machinepack-add": "./bin/machinepack-add.js",
     "machinepack-ls": "./bin/machinepack-ls.js",
@@ -31,6 +33,7 @@
     "machinepack-fs": "^1.6.0",
     "chalk": "^0.5.1",
     "machinepack-machines": "^1.0.0",
-    "yargs": "^1.3.3"
+    "yargs": "^1.3.3",
+    "convert-to-ecmascript-compatible-varname": "^0.1.1"
   }
 }
