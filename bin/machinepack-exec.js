@@ -115,6 +115,7 @@ var machineMethodName;
           });
         })(identity);
 
+
         Machinepacks.getMachinesDir({
           dir: Path.resolve(process.cwd(), inputs.dir)
         }).exec({
@@ -124,7 +125,7 @@ var machineMethodName;
           success: function (pathToMachines){
 
             var pathToMachine = Path.resolve(pathToMachines, inputs.identity+'.js');
-
+            console.log('made it after getMachinesDir');
 
             Machinepacks.runMachineInteractive({
               machinepackPath: machinepackPath,
@@ -133,7 +134,8 @@ var machineMethodName;
                 return _.reduce(cliOpts, function (memo, inputValue, inputName){
                   memo.push({
                     name: inputName,
-                    value: inputValue
+                    value: inputValue,
+                    protect: false
                   });
                   return memo;
                 }, []);
@@ -164,7 +166,7 @@ var machineMethodName;
 })
 .exec({
   error: function (err){
-    console.error('Unexpected error occurred:\n',err);
+    console.error('Unexpected error occurred:\n',typeof err === 'object' && err instanceof Error ? err.stack : err);
   },
   notFound: function (){
     console.error('Cannot run machine `'+chalk.red(identity)+'`.  No machine with that identity exists in this machinepack.');
