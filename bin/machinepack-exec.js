@@ -29,6 +29,13 @@ if (!program.args[0]) {
 
 var identity = program.args[0];
 
+
+
+// exposed via closure simply for convenience
+var machinepackVarName;
+var machineMethodName;
+
+
 (Machine.build({
   inputs: {
     identity: {
@@ -70,6 +77,8 @@ var identity = program.args[0];
 
     var machinepackPath = Path.resolve(process.cwd(), inputs.dir);
 
+    console.log('\n'+chalk.gray(' Running machine...'));
+
     Filesystem.readJson({
       source: Path.resolve(process.cwd(), 'package.json')
     }).exec({
@@ -88,7 +97,7 @@ var identity = program.args[0];
         }
 
         // Calculate appropriate variable name for machinepack
-        var machinepackVarName = (function (moduleName){
+        machinepackVarName = (function (moduleName){
           var varname = moduleName.replace(/^machinepack-/,'');
           varname = varname.replace(/-[a-z]/ig,function (match){
             return match.slice(1).toUpperCase();
@@ -99,16 +108,11 @@ var identity = program.args[0];
 
         // Calculate appropriate machine method name
         // TODO: use machinepack-javascript to do this
-        var machineMethodName = (function(identity){
+        machineMethodName = (function(identity){
           return identity.replace(/-[a-z]/ig, function (match) {
             return match.slice(1).toUpperCase();
           });
         })(identity);
-
-        console.log('\n'+chalk.gray(' Running machine...'));
-        console.log('___'+repeatChar('_')+'_˛');
-        console.log('   '+repeatChar(' ')+'  ');
-        console.log('   '+chalk.gray('%s.%s()'), chalk.bold(chalk.white(machinepackVarName)), chalk.bold(chalk.yellow(machineMethodName)));
 
         Machinepacks.getMachinesDir({
           dir: Path.resolve(process.cwd(), inputs.dir)
@@ -120,7 +124,6 @@ var identity = program.args[0];
 
             var pathToMachine = Path.resolve(pathToMachines, inputs.identity+'.js');
 
-            // env.log();
 
             Machinepacks.runMachineInteractive({
               machinepackPath: machinepackPath,
@@ -169,6 +172,10 @@ var identity = program.args[0];
     console.error('Cannot run machine `'+chalk.red(identity)+'`. Machine is invalid.  Error details:\n',err);
   },
   success: function (result){
+
+    console.log('___'+repeatChar('_')+'_˛');
+    console.log('   '+repeatChar(' ')+'  ');
+    console.log('   '+chalk.gray('%s.%s()'), chalk.bold(chalk.white(machinepackVarName)), chalk.bold(chalk.yellow(machineMethodName)));
 
     // console.log('');
     // console.log(chalk.white(' * * * * * * * * * * * * * * * * * * * * * * * * '));
