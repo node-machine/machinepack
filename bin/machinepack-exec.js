@@ -45,6 +45,7 @@ var identity = program.args[0];
         exited: {
           exit: 'success',
           jsonValue: '{"stuff": "things"}',
+          inspectedValue: '{stuff: "things"}',
           void: false
         }
       }
@@ -170,7 +171,7 @@ var identity = program.args[0];
 
     console.log(' The machine triggered its '+chalk.bold(chalk.blue(result.exited.exit))+' exit'+(function (){
       if (!result.exited.void) {
-        return ' and returned a value:\n '+chalk.gray(result.exited.jsonValue);
+        return ' and returned a value:\n '+chalk.gray(result.exited.inspectedValue);
       }
       return '.';
     })());
