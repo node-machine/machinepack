@@ -78,6 +78,7 @@ var machineMethodName;
     var machinepackPath = Path.resolve(process.cwd(), inputs.dir);
 
     console.log('\n'+chalk.gray(' Running machine...'));
+    console.log();
 
     Filesystem.readJson({
       source: Path.resolve(process.cwd(), 'package.json')
@@ -187,7 +188,7 @@ var machineMethodName;
     // console.log(' Used input values:\n', _.reduce(result.withInputs, function(memo, configuredInput) {
     console.log('  ');
     console.log(_.reduce(result.withInputs, function(memo, configuredInput) {
-      memo += '   » ' + chalk.cyan(configuredInput.name) + ' ' + chalk.gray(JSON.stringify(configuredInput.value));
+      memo += '   » ' + chalk.white(configuredInput.name) + ' ' + chalk.gray(JSON.stringify(configuredInput.value));
       memo += '\n';
       return memo;
     }, ''));
@@ -222,7 +223,7 @@ var machineMethodName;
       var cmd = ' machinepack exec '+identity;
       _.each(result.withInputs, function (configuredInput){
         cmd += ' ';
-        cmd += '--'+configuredInput.name+'='+configuredInput.value;
+        cmd += '--'+configuredInput.name+'=\''+configuredInput.value.replace(/'/g,'\'\\\'\'')+'\'';
       });
       return cmd;
     })()));
