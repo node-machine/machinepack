@@ -209,9 +209,9 @@ var machineMethodName;
         return 'red';
       }
       if (result.exited.exit === 'success') {
-        return 'blue';
+        return 'green';
       }
-      return 'gray';
+      return 'blue';
     })();
 
     console.log('  '+chalk.bold(chalk[exitColor]('•'))+' \n  The machine triggered its '+chalk.bold(chalk[exitColor](result.exited.exit))+' exit'+(function (){
