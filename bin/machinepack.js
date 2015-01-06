@@ -67,7 +67,7 @@ if (program.args[0] === 'initialize' || program.args[0] === 'new') {
 if (program.args[0] === 'remove') {
   return _alias('rm');
 }
-if (program.args[0] === 'run') {
+if (program.args[0] === 'run' || program.args[0] === 'test') {
   return _alias('exec');
 }
 if (program.args[0] === 'touch') {
