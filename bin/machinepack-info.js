@@ -9,8 +9,7 @@ var program = require('commander');
 var _ = require('lodash');
 var chalk = require('chalk');
 var Machine = require('machine');
-var convertToEcmascriptCompatibleVarname = require('convert-to-ecmascript-compatible-varname');
-    // TODO: use machinepack-javascript to do this
+var Javascript = require('machinepack-javascript');
 
 
 
@@ -36,7 +35,7 @@ program
     },
     success: {
       example: {
-        npmModuleName: 'machinepack-fs',
+        npmPackageName: 'machinepack-fs',
         variableName: 'Filesystem',
         friendlyName: 'Filesystem Utilities',
         identity: 'machinepack-fs',
@@ -44,7 +43,10 @@ program
         description: 'Work with the local filesystem; list files, write files, etc.',
         keywords: ['keywords'],
         machines: ['do-something'],
-        machineDir: 'machines/'
+        machineDir: 'machines/',
+        nodeMachineUrl: 'http://node-machine.org/machinepack-fs',
+        npmUrl: 'http://npmjs.org/package/machinepack-fs',
+        githubUrl: 'https://github.com/mikermcneil/machinepack-fs'
       }
     }
   },
@@ -53,10 +55,8 @@ program
     // Dependencies
     var Path = require('path');
     var Filesystem = require('machinepack-fs');
-    var Machinepacks = require('machinepack-machines');
-    var convertToEcmascriptCompatibleVarname = require('convert-to-ecmascript-compatible-varname');
-    // TODO: use machinepack-javascript to do this
-
+    var Machines = require('machinepack-machines');
+    var Javascript = require('machinepack-javascript');
 
     var machinepackPath = Path.resolve(process.cwd(), inputs.dir);
     var packageJsonPath = Path.resolve(machinepackPath, 'package.json');
@@ -72,48 +72,16 @@ program
       },
       success: function (jsonData){
 
-        // Not a machinepack
-        if (!jsonData.machinepack) {
-          return exits.notMachinepack();
-        }
-
-        var machinepackMetadata;
+        // Parse machinepack metadata from its package.json string.
         try {
-          machinepackMetadata = {
-            identity: jsonData.name,
-            npmModuleName: jsonData.name,
-            friendlyName: jsonData.machinepack.friendlyName,
-            version: jsonData.version,
-            description: jsonData.description,
-            keywords: jsonData.keywords,
-            machines: jsonData.machinepack.machines,
-            machineDir: jsonData.machinepack.machineDir
-          };
-
-          // If a friendlyName is not explicitly specified, build one from `identity`
-          machinepackMetadata.friendlyName = (function determineSuitableFriendlyName (){
-            var friendlyName = (jsonData.machinepack&&jsonData.machinepack.friendlyName) || machinepackMetadata.identity;
-            // If friendlyname still has "machinepack-" prefix in it, wipe it out
-            friendlyName = friendlyName.replace(/^machinepack-/, '');
-
-            // Then capitalize whatever's left
-            return friendlyName[0].toUpperCase() + friendlyName.slice(1);
-          })();
-
-          // Build `variableName` from friendlyName, but first...
-          machinepackMetadata.variableName = (function determineSuitableVariableName (){
-            var variableName = machinepackMetadata.friendlyName;
-            // convert to a ecmascript-compatible variable
-            variableName = convertToEcmascriptCompatibleVarname(variableName);
-            // then capitalize the first letter)
-            return variableName[0].toUpperCase() + variableName.slice(1);
-          })();
+          var machinepackMetadata = Machines.parseMachinepackMetadata({
+            json: jsonData,
+          }).execSync();
+          return exits.success(machinepackMetadata);
         }
         catch (e) {
-          return exits.error(e);
+          return exits(e);
         }
-
-        return exits.success(machinepackMetadata);
       }
     });
   }
@@ -140,15 +108,36 @@ program
     console.log();
     console.log();
 
+    var urls = (function (_urls){
+      if (machinepack.nodeMachineUrl){
+        _urls.push(machinepack.nodeMachineUrl);
+      }
+      if (machinepack.npmUrl){
+        _urls.push(machinepack.npmUrl);
+      }
+      if (machinepack.githubUrl){
+        _urls.push(machinepack.githubUrl);
+      }
+      return _urls;
+    })([]);
+    if (urls.length > 0){
+      console.log(chalk.bold('URLS'));
+      _.each(urls, function (url){
+        console.log('     '+chalk.underline(url));
+      });
+      console.log();
+      console.log();
+    }
+
     console.log(chalk.bold('INSTALLATION'));
     // console.log();
-    console.log(chalk.white('     npm install '+chalk.bold(machinepack.npmModuleName) + '@^'+machinepack.version + ' --save'));
+    console.log(chalk.white('     npm install '+chalk.bold(machinepack.npmPackageName) + '@^'+machinepack.version + ' --save'));
     console.log();
     console.log();
 
     console.log(chalk.bold('USAGE'));
     // console.log();
-    console.log('     var '+machinepack.variableName+' = require(\''+machinepack.npmModuleName + '\');');
+    console.log('     var '+machinepack.variableName+' = require(\''+machinepack.npmPackageName + '\');');
     console.log();
     console.log();
 
@@ -156,13 +145,13 @@ program
     // console.log();
 
     if (machinepack.machines.length < 1) {
-      console.log('\n'+chalk.gray('     none'));
+      console.log(chalk.gray('     none'));
     }
     else {
       // console.log('%s %s:', chalk.bold(chalk.blue(machinepack.machines.length)), machinepack.machines.length===1?'Machine':'Machines');
       _.each(machinepack.machines,function (machineIdentity){
         // Calculate appropriate machine method name
-        var methodName = convertToEcmascriptCompatibleVarname(machineIdentity);
+        var methodName = Javascript.convertToEcmascriptCompatibleVarname({string:machineIdentity, force: true}).execSync();
         console.log('     %s.%s()   %s',chalk.white(machinepack.variableName), chalk.yellow(methodName), chalk.gray('('+machineIdentity+')'));
       });
     }
@@ -171,6 +160,6 @@ program
     // console.log(chalk.gray('     to take a closer look:  ')+chalk.bold.gray('machinepack show <machine>'));
     console.log();
     console.log();
-    // console.log(chalk.gray.bold('NPM')+'\n' + chalk.gray(machinepack.npmModuleName + '\n' + 'v'+machinepack.version));
+    // console.log(chalk.gray.bold('NPM')+'\n' + chalk.gray(machinepack.npmPackageName + '\n' + 'v'+machinepack.version));
   }
 });
