@@ -82,7 +82,7 @@ Machines.readPackageJson({
       console.log(chalk.gray('     none'));
     } else {
       // console.log('%s %s:', chalk.bold(chalk.blue(machinepack.machines.length)), machinepack.machines.length===1?'Machine':'Machines');
-      _.each(machinepack.machines, function(machineIdentity) {
+      _.each(_.sortBy(machinepack.machines, ['methodName']), function(machineIdentity) {
         // Calculate appropriate machine method name
         var methodName = Javascript.convertToEcmascriptCompatibleVarname({
           string: machineIdentity,
