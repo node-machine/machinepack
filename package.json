@@ -13,6 +13,7 @@
     "machinepack-cp": "./bin/machinepack-cp.js",
     "machinepack-rm": "./bin/machinepack-rm.js",
     "machinepack-exec": "./bin/machinepack-exec.js",
+    "machinepack-browse": "./bin/machinepack-browse.js",
     "mp": "./bin/machinepack.js",
     "mp-about": "./bin/machinepack-about.js",
     "mp-info": "./bin/machinepack-info.js",
@@ -22,7 +23,8 @@
     "mp-mv": "./bin/machinepack-mv.js",
     "mp-cp": "./bin/machinepack-cp.js",
     "mp-rm": "./bin/machinepack-rm.js",
-    "mp-exec": "./bin/machinepack-exec.js"
+    "mp-exec": "./bin/machinepack-exec.js",
+    "mp-browse": "./bin/machinepack-browse.js"
   },
   "scripts": {
     "test": "node ./node_modules/mocha/bin -t 10000"
@@ -46,6 +48,7 @@
     "machinepack-machines": "^1.0.0",
     "yargs": "^1.3.3",
     "machinepack-javascript": "^0.2.1",
-    "inquirer": "^0.8.0"
+    "inquirer": "^0.8.0",
+    "open": "0.0.5"
   }
 }

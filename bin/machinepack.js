@@ -19,14 +19,15 @@ program
 // Allow unknown options.
 .unknownOption = function NOOP(){};
 program.usage(chalk.gray('[options]')+' '+chalk.bold('<command>'))
-.command('init', 'make this a machinepack')
-.command('info', 'get machinepack metadata')
+.command('browse', 'view on node-machine.org')
+.command('info', 'get pack metadata')
 .command('ls', 'list machines')
 .command('add', 'add a new machine')
 .command('exec <identity>', 'run machine')
 .command('rm <identity>', 'delete existing machine')
 .command('mv <originalIdentity> <newIdentity>', 'rename machine')
 .command('cp <originalIdentity> <newIdentity>', 'copy machine')
+.command('init', 'make this module a machinepack')
 .command('about', 'about this module')
 .parse(process.argv);
 
@@ -78,6 +79,9 @@ if (program.args[0] === 'move') {
 }
 if (program.args[0] === 'copy') {
   return _alias('cp');
+}
+if (program.args[0] === 'man') {
+  return _alias('info');
 }
 
 
