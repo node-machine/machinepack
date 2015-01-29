@@ -83,6 +83,9 @@ if (program.args[0] === 'copy') {
 if (program.args[0] === 'man') {
   return _alias('info');
 }
+if (program.args[0] === 'show') {
+  return _alias('browse');
+}
 
 
 // $ machinepack *
