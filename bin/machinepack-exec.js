@@ -103,13 +103,13 @@ Machine.build({
             // when: function (){
             //   return !machine;
             // },
-            choices: _.reduce(machinepack.machines, function (memo, machine){
+            choices: _.sortBy(_.reduce(machinepack.machines, function (memo, machine){
               memo.push({
                 name: machine,
                 value: machine
               });
               return memo;
-            }, [])
+            }, []), 'name')
           }], function (answers){
             next(null, answers.machine);
           });
