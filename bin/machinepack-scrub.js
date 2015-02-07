@@ -38,6 +38,7 @@ Filesystem.read({
     var jsonData;
     try {
       jsonData = JSON.parse(jsonString);
+      jsonData.devDependencies = jsonData.devDependencies||{};
       jsonData.devDependencies['test-machinepack-mocha'] = '^0.2.2';
       jsonData.scripts = jsonData.scripts||{};
       jsonData.scripts.test = 'node ./node_modules/test-machinepack-mocha/bin/testmachinepack-mocha.js';
