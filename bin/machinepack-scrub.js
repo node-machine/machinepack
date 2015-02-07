@@ -114,7 +114,14 @@ Filesystem.read({
                 // OK.
                 success: function() {
                   console.log();
-                  console.log('OK!  I double-checked that each machine in this pack has a test in the tests folder and created one if necessary. I also regenerated the README.md file.');
+                  console.log('Whew! I gave this pack a good scrubbing.\n');
+                  console.log(
+                    ' • regenerated the README.md file using the latest info from your package.json file\n'+
+                    ' • made sure your package.json file has a repo url in it; assuming this pack has a local repo (i.e. `.git` folder)\n'+
+                    ' • double-checked that each machine in this pack has a test in the tests folder and created new ones if necessary\n'+
+                    ' • ensured a `devDependency` on the proper version of `test-machinepack-mocha` in your package.json file\n'+
+                    ' • ensured you have the proper `npm test` script in your package.json file\n'
+                  );
                   console.log();
                 },
               });
