@@ -4,6 +4,7 @@
  * Module dependencies
  */
 
+var path = require('path');
 var _ = require('lodash');
 var chalk = require('chalk');
 var Machines = require('machinepack-machines');
