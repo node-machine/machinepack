@@ -14,7 +14,12 @@ var browseToMachinepackUrl = require('../standalone/browse-to-machinepack-url');
 
 program
   .usage('[toWhat]')
+  // .command('docs', 'browse usage docs, like a manpage')
+  // .command('npm', 'browse pack on npmjs.org')
+  // .command('source', 'browse the changelog / repo')
+  // .command('tests', 'browse status of automated tests, e.g. on Travis CI')
   .parse(process.argv);
+
 
 
 browseToMachinepackUrl({
