@@ -15,9 +15,8 @@ program
 .usage('[options]')
 .parse(process.argv);
 
-// IDEA: generate a README file using the boilerplate. if `--force` is set, write over what's already there.  probably a different command for this.
 
-// IDEA: if a machine file exists in the machines folder, but is not in the package.json, prompt about it?  not sure if this would actually be a good thing. maybe a different command...?
+// IDEA: if a machine file exists in the machines folder, but is not in the package.json, add it?  not sure if this would actually be a good thing. probably as a different command...?
 
 var packageJsonPath = path.resolve(process.cwd(), 'package.json');
 
@@ -76,9 +75,31 @@ Filesystem.read({
             console.error('Be sure and check that the package.json file has a valid `machinepack` property, or run `machinepack init` if you aren\'t sure.');
           },
           success: function (){
-            console.log();
-            console.log('Done!  (I double-checked that each machine in this pack has a test in the tests folder and created one if necessary.)');
-            console.log();
+
+            // Generate a README file using the boilerplate. if `--force` is set, write over what's already there.  probably a different command for this.
+            //  --> (read file at source path, replace substrings with provided data, then write to destination path.)
+            Filesystem.template({
+              source: path.resolve(__dirname,'../templates/README.template.md'),
+              destination: path.resolve(process.cwd(), 'README.md'),
+              data: {
+                moduleName: 'ahh',
+                description: 'sag',
+                createdAt: new Date(),
+                author: ''
+              },
+              force: true
+            }).exec({
+              // An unexpected error occurred.
+              error: function(err) {
+                console.error('Unexpected error occurred:\n', err);
+              },
+              // OK.
+              success: function() {
+                console.log();
+                console.log('OK!  I double-checked that each machine in this pack has a test in the tests folder and created one if necessary. I also regenerated the README.md file.');
+                console.log();
+              },
+            });
           }
         });
       }
