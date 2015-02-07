@@ -10,6 +10,7 @@ var chalk = require('chalk');
 var Machines = require('machinepack-machines');
 var Filesystem = require('machinepack-fs');
 var program = require('commander');
+var gi = require('git-info');
 
 program
 .usage('[options]')
@@ -49,61 +50,80 @@ Filesystem.read({
       return;
     }
 
-    Filesystem.writeJson({
-      json: jsonData,
-      destination: packageJsonPath,
-      force: true
-    }).exec({
+    // While we're here, see if there's anything exciting in the git directory and
+    // update the package.json file with the repo url if we can get it.
+    gi('repository', function(err, repoInfo) {
 
-      // An unexpected error occurred.
-      error: function (err){
-        console.error('Unexpected error occurred:\n', err);
-      },
-
-      // OK.
-      success: function (){
-
-        // Ensure tests exist for each machine (don't overwrite any test files which already exist though)
-        Machines.scaffoldTests({
-          dir: process.cwd()
-        }, {
-          error: function (err){
-            console.error('Unexpected error occurred:\n', err);
-          },
-          notMachinepack: function (){
-            console.error('This is '+chalk.red('not a machinepack')+'.');
-            console.error('Be sure and check that the package.json file has a valid `machinepack` property, or run `machinepack init` if you aren\'t sure.');
-          },
-          success: function (){
-
-            // Generate a README file using the boilerplate. if `--force` is set, write over what's already there.  probably a different command for this.
-            //  --> (read file at source path, replace substrings with provided data, then write to destination path.)
-            Filesystem.template({
-              source: path.resolve(__dirname,'../templates/README.template.md'),
-              destination: path.resolve(process.cwd(), 'README.md'),
-              data: {
-                moduleName: 'ahh',
-                description: 'sag',
-                createdAt: new Date(),
-                author: ''
-              },
-              force: true
-            }).exec({
-              // An unexpected error occurred.
-              error: function(err) {
-                console.error('Unexpected error occurred:\n', err);
-              },
-              // OK.
-              success: function() {
-                console.log();
-                console.log('OK!  I double-checked that each machine in this pack has a test in the tests folder and created one if necessary. I also regenerated the README.md file.');
-                console.log();
-              },
-            });
-          }
-        });
+      // Ignore errors-- just use the repo url if we can get it, otherwise ignore it.
+      if (err) { }
+      else {
+        try {
+          jsonData.repository = {
+            type: 'git',
+            url: repoInfo.repository
+          };
+        }
+        catch (e) {}
       }
+
+      Filesystem.writeJson({
+        json: jsonData,
+        destination: packageJsonPath,
+        force: true
+      }).exec({
+
+        // An unexpected error occurred.
+        error: function (err){
+          console.error('Unexpected error occurred:\n', err);
+        },
+
+        // OK.
+        success: function (){
+
+          // Ensure tests exist for each machine (don't overwrite any test files which already exist though)
+          Machines.scaffoldTests({
+            dir: process.cwd()
+          }, {
+            error: function (err){
+              console.error('Unexpected error occurred:\n', err);
+            },
+            notMachinepack: function (){
+              console.error('This is '+chalk.red('not a machinepack')+'.');
+              console.error('Be sure and check that the package.json file has a valid `machinepack` property, or run `machinepack init` if you aren\'t sure.');
+            },
+            success: function (){
+
+              // (Re)generate a README file using the boilerplate, using fresh description and module name from package.json.
+              //  --> (read file at source path, replace substrings with provided data, then write to destination path.)
+              Filesystem.template({
+                source: path.resolve(__dirname,'../templates/README.template.md'),
+                destination: path.resolve(process.cwd(), 'README.md'),
+                data: {
+                  moduleName: jsonData.name,
+                  description: jsonData.description,
+                  copyrightYear: (new Date()).getFullYear(),
+                  author: jsonData.author,
+                  license: jsonData.license||'MIT'
+                },
+                force: true
+              }).exec({
+                // An unexpected error occurred.
+                error: function(err) {
+                  console.error('Unexpected error occurred:\n', err);
+                },
+                // OK.
+                success: function() {
+                  console.log();
+                  console.log('OK!  I double-checked that each machine in this pack has a test in the tests folder and created one if necessary. I also regenerated the README.md file.');
+                  console.log();
+                },
+              });
+            }
+          });
+        }
+      });
     });
+
   },
 });
 

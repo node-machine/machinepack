@@ -11,8 +11,7 @@
 //
 //
 //
-%>
-<h1>
+%><h1>
   <a href="http://node-machine.org" title="Node-Machine public registry"><img alt="node-machine logo" title="Node-Machine Project" src="http://node-machine.org/images/machine-anthropomorph-for-white-bg.png" width="50" /></a>
   <%=moduleName%>
 </h1>
@@ -40,5 +39,5 @@ Learn more at <a href="http://node-machine.org/implementing/FAQ" title="Machine 
 
 ## License
 
-MIT &copy; <%= createdAt.getFullYear() %> <%= typeof author !== 'undefined' ? author+' and ' : '' %>contributors
+<%= license %> &copy; <%= copyrightYear %> <%= (typeof author !== 'undefined' && author) ? author+' and ' : '' %>contributors
 
