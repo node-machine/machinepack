@@ -15,7 +15,9 @@ program
 .usage('[options]')
 .parse(process.argv);
 
-// TODO: if a machine file exists, but is not in the package.json, prompt about it
+// IDEA: generate a README file using the boilerplate. if `--force` is set, write over what's already there.  probably a different command for this.
+
+// IDEA: if a machine file exists in the machines folder, but is not in the package.json, prompt about it?  not sure if this would actually be a good thing. maybe a different command...?
 
 var packageJsonPath = path.resolve(process.cwd(), 'package.json');
 
