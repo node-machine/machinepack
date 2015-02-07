@@ -7,7 +7,7 @@
 
 Command-line tool for working with machinepacks and machines.
 
-## Installation &nbsp; [![NPM version](https://badge.fury.io/js/machinepack-fs.svg)](http://badge.fury.io/js/machinepack-fs) [![Build Status](https://travis-ci.org/mikermcneil/machinepack-fs.png?branch=master)](https://travis-ci.org/mikermcneil/machinepack-fs)
+## Installation &nbsp; [![NPM version](https://badge.fury.io/js/machinepack.svg)](http://badge.fury.io/js/machinepack)
 
 ```sh
 $ npm install -g machinepack
