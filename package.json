@@ -14,6 +14,7 @@
     "machinepack-rm": "./bin/machinepack-rm.js",
     "machinepack-exec": "./bin/machinepack-exec.js",
     "machinepack-browse": "./bin/machinepack-browse.js",
+    "machinepack-scrub": "./bin/machinepack-scrub.js",
     "mp": "./bin/machinepack.js",
     "mp-about": "./bin/machinepack-about.js",
     "mp-info": "./bin/machinepack-info.js",
@@ -24,7 +25,8 @@
     "mp-cp": "./bin/machinepack-cp.js",
     "mp-rm": "./bin/machinepack-rm.js",
     "mp-exec": "./bin/machinepack-exec.js",
-    "mp-browse": "./bin/machinepack-browse.js"
+    "mp-browse": "./bin/machinepack-browse.js",
+    "mp-scrub": "./bin/machinepack-scrub.js"
   },
   "scripts": {
     "test": "node ./node_modules/mocha/bin -t 10000"

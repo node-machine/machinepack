@@ -28,6 +28,7 @@ program.usage(chalk.gray('[options]')+' '+chalk.bold('<command>'))
 .command('mv <originalIdentity> <newIdentity>', 'rename machine')
 .command('cp <originalIdentity> <newIdentity>', 'copy machine')
 .command('init', 'make this module a machinepack')
+.command('scrub', 'scrub pack; generate missing tests, etc.')
 .command('about', 'about this module')
 .parse(process.argv);
 
