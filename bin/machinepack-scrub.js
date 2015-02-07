@@ -93,19 +93,10 @@ Filesystem.read({
             },
             success: function (){
 
-              // (Re)generate a README file using the boilerplate, using fresh description and module name from package.json.
-              //  --> (read file at source path, replace substrings with provided data, then write to destination path.)
-              Filesystem.template({
-                source: path.resolve(__dirname,'../templates/README.template.md'),
-                destination: path.resolve(process.cwd(), 'README.md'),
-                data: {
-                  moduleName: jsonData.name,
-                  description: jsonData.description,
-                  copyrightYear: (new Date()).getFullYear(),
-                  author: jsonData.author,
-                  license: jsonData.license||'MIT'
-                },
-                force: true
+              // Copy file or directory located at source path to the destination path.
+              Filesystem.cp({
+                source: path.resolve(__dirname,'../templates/travis.template.yml'),
+                destination: path.resolve(process.cwd(), '.travis.yml'),
               }).exec({
                 // An unexpected error occurred.
                 error: function(err) {
@@ -113,17 +104,40 @@ Filesystem.read({
                 },
                 // OK.
                 success: function() {
-                  console.log();
-                  console.log('Whew! I gave this pack a good scrubbing.\n');
-                  console.log(
-                    ' • regenerated the README.md file using the latest info from your package.json file\n'+
-                    ' • made sure your package.json file has a repo url in it; assuming this pack has a local repo (i.e. `.git` folder)\n'+
-                    ' • double-checked that each machine in this pack has a test in the tests folder and created new ones if necessary\n'+
-                    ' • ensured a `devDependency` on the proper version of `test-machinepack-mocha` in your package.json file\n'+
-                    ' • ensured you have the proper `npm test` script in your package.json file\n'
-                  );
-                  console.log();
-                },
+                  // (Re)generate a README file using the boilerplate, using fresh description and module name from package.json.
+                  //  --> (read file at source path, replace substrings with provided data, then write to destination path.)
+                  Filesystem.template({
+                    source: path.resolve(__dirname,'../templates/README.template.md'),
+                    destination: path.resolve(process.cwd(), 'README.md'),
+                    data: {
+                      moduleName: jsonData.name,
+                      description: jsonData.description,
+                      copyrightYear: (new Date()).getFullYear(),
+                      author: jsonData.author,
+                      license: jsonData.license||'MIT'
+                    },
+                    force: true
+                  }).exec({
+                    // An unexpected error occurred.
+                    error: function(err) {
+                      console.error('Unexpected error occurred:\n', err);
+                    },
+                    // OK.
+                    success: function() {
+                      console.log();
+                      console.log('Whew! I gave this pack a good scrubbing.\n');
+                      console.log(
+                        ' • regenerated the README.md file using the latest info from your package.json file\n'+
+                        ' • made sure your package.json file has a repo url in it; assuming this pack has a local repo (i.e. `.git` folder)\n'+
+                        ' • double-checked that each machine in this pack has a test in the tests folder and created new ones if necessary\n'+
+                        ' • ensured a `devDependency` on the proper version of `test-machinepack-mocha` in your package.json file\n'+
+                        ' • ensured you have the proper `npm test` script in your package.json file\n',
+                        ' • ensured you have the a .travis.yml file\n'
+                      );
+                      console.log();
+                    },
+                  });
+                }
               });
             }
           });
