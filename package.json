@@ -1,6 +1,6 @@
 {
   "name": "machinepack",
-  "version": "2.2.6",
+  "version": "2.2.7",
   "description": "CLI tool for working with machinepacks and their machines.",
   "bin": {
     "machinepack": "./bin/machinepack.js",
