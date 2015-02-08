@@ -33,8 +33,7 @@ Machinepacks.promptAboutNewMachine().exec({
           description: 'Unexpected error occurred.'
         },
         success: {
-          description: 'Done.',
-          example: 'TODO'
+          description: 'Done.'
         }
       },
     }).exec({
