@@ -20,23 +20,40 @@ Machinepacks.promptAboutNewMachine().exec({
   },
   success: function (answers){
 
-    Machinepacks.addMachine({
+    var newMachineMetadata = {
       machinepackRootPath: process.cwd(),
       identity: answers.identity,
       friendlyName: answers.friendlyName,
       description: answers.description,
-      extendedDescription: answers.extendedDescription,
       inputs: {},
-      defaultExit: 'success',
       exits: {
-        error: {
-          description: 'Unexpected error occurred.'
-        },
         success: {
+          variableName: 'result',
           description: 'Done.'
         }
       },
-    }).exec({
+    };
+
+    if (typeof answers.defaultExit !== 'undefined') {
+      newMachineMetadata.defaultExit = answers.defaultExit;
+    }
+    if (typeof answers.idempotent !== 'undefined') {
+      newMachineMetadata.idempotent = answers.idempotent;
+    }
+    if (typeof answers.sync !== 'undefined') {
+      newMachineMetadata.sync = answers.sync;
+    }
+    if (typeof answers.cacheable !== 'undefined') {
+      newMachineMetadata.cacheable = answers.cacheable;
+    }
+    if (typeof answers.moreInfoUrl !== 'undefined') {
+      newMachineMetadata.moreInfoUrl = answers.moreInfoUrl;
+    }
+    if (typeof answers.extendedDescription !== 'undefined') {
+      newMachineMetadata.extendedDescription = answers.extendedDescription;
+    }
+
+    Machinepacks.addMachine(newMachineMetadata).exec({
       error: function (err) {
         console.error('Error generating new machine:\n', err);
       },
