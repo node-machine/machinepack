@@ -14,7 +14,9 @@ program
   .parse(process.argv);
 
 
-Machinepacks.promptAboutNewMachine().exec({
+Machinepacks.promptAboutNewMachine({
+  identity: program.args[0]
+}).exec({
   error: function (err) {
     console.error('Unexpected error occurred:\n', err);
   },
@@ -24,7 +26,14 @@ Machinepacks.promptAboutNewMachine().exec({
       machinepackRootPath: process.cwd(),
       identity: answers.identity,
       friendlyName: answers.friendlyName,
-      description: answers.description,
+      description: (function (){
+        if (!answers.description) return undefined;
+        return answers.description;
+      })(),
+      extendedDescription: (function (){
+        if (!answers.extendedDescription) return undefined;
+        return answers.extendedDescription;
+      })(),
       inputs: {},
       exits: {
         success: {
@@ -48,9 +57,6 @@ Machinepacks.promptAboutNewMachine().exec({
     }
     if (typeof answers.moreInfoUrl !== 'undefined') {
       newMachineMetadata.moreInfoUrl = answers.moreInfoUrl;
-    }
-    if (typeof answers.extendedDescription !== 'undefined') {
-      newMachineMetadata.extendedDescription = answers.extendedDescription;
     }
 
     Machinepacks.addMachine(newMachineMetadata).exec({
