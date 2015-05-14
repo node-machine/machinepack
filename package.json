@@ -47,7 +47,7 @@
     "git-info": "^1.0.1",
     "inquirer": "^0.8.0",
     "lodash": "^2.4.1",
-    "machine": "^4.0.0",
+    "machine": "^7.0.0",
     "machinepack-fs": "^1.6.0",
     "machinepack-javascript": "^0.2.1",
     "machinepack-machines": "^4.0.0",
