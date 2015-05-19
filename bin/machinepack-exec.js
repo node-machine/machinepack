@@ -8,7 +8,9 @@ var program = require('commander');
 var chalk = require('chalk');
 var Machine = require('machine');
 var _ = require('lodash');
+var util = require('util');
 var yargs = require('yargs');
+// var MPProcess = require('machinepack-process');
 
 // Build CLI options
 var cliOpts = yargs.argv;
@@ -223,20 +225,44 @@ Machine.build({
     })());
     console.log();
     console.log();
+
+    // Compute command to use when running again
+    var cmd = ' machinepack exec '+identity;
+    _.each(result.withInputs, function (configuredInput){
+
+      // Skip protected inputs (they need to be re-entered)
+      if (configuredInput.protect) return;
+
+      cmd += ' ';
+      cmd += '--'+configuredInput.name+'=\''+configuredInput.value.replace(/'/g,'\'\\\'\'')+'\'';
+    });
+
     console.log(chalk.white(' To run again:'));
-    console.log(chalk.white((function (){
-      var cmd = ' machinepack exec '+identity;
-      _.each(result.withInputs, function (configuredInput){
+    console.log(chalk.white(cmd));
 
-        // Skip protected inputs (they need to be re-entered)
-        if (configuredInput.protect) return;
 
-        cmd += ' ';
-        cmd += '--'+configuredInput.name+'=\''+configuredInput.value.replace(/'/g,'\'\\\'\'')+'\'';
-      });
-      return cmd;
-    })()));
-    console.log();
+    // Now attempt to add it to the shell history automatically
+    // (see `http://superuser.com/a/135654` for how this works)
+    // MPProcess.addToHistory({
+    //   command: cmd
+    // }).exec({
+    //   error: function (err){
+    //     if (cliOpts.verbose) {
+    //       console.log();
+    //       console.log(' Command could not be automatically added to your shell history.\n\nDetails:\n------------------------------\n',chalk.red(_.isString(err) ? err : util.inspect(err, false, null)));
+    //     }
+    //     else {
+    //       console.log(' (command could not be automatically added to your shell history; use `--verbose` next time for more info)');
+    //     }
+    //     console.log();
+    //   },
+    //   success: function (){
+    //     console.log(chalk.gray(' (also appended this command to your CLI history'));
+    //     console.log();
+    //   }
+    // });
+
+
   }
 });
 
