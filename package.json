@@ -50,7 +50,7 @@
     "machine": "^7.0.0",
     "machinepack-fs": "^1.6.0",
     "machinepack-javascript": "^0.2.1",
-    "machinepack-machines": "^4.0.0",
+    "machinepack-machines": "^5.0.0",
     "machinepack-process": "^1.0.2",
     "open": "0.0.5",
     "yargs": "^1.3.3"

@@ -58,10 +58,11 @@ Machine.build({
           }
         ],
         exited: {
-          exit: 'success',
-          jsonValue: '{"stuff": "things"}',
-          inspectedValue: '{stuff: "things"}',
-          void: false
+          outcome: 'success',
+          output: '===',
+          jsonStringifiedOutput: '{"stuff": "things"}',
+          inspectedOutput: '{stuff: "things"}',
+          duration: 2395
         }
       }
     },
@@ -199,7 +200,7 @@ Machine.build({
     console.log('___'+repeatChar('_')+'_¸ ');
     console.log('  | ');
 
-    // console.log(' Triggered '+chalk.blue(result.exited.exit)+' callback'+(function (){
+    // console.log(' Triggered '+chalk.blue(result.exited.outcome)+' callback'+(function (){
     //   if (!result.exited.void) {
     //     return ', returning:\n ' + chalk.gray(result.exited.jsonValue);
     //   }
@@ -208,18 +209,18 @@ Machine.build({
 
     // Determine chalk color
     var exitColor = (function (){
-      if (result.exited.exit === 'error') {
+      if (result.exited.outcome === 'error') {
         return 'red';
       }
-      if (result.exited.exit === 'success') {
+      if (result.exited.outcome === 'success') {
         return 'green';
       }
       return 'blue';
     })();
 
-    console.log('  '+chalk.bold(chalk[exitColor]('•'))+' \n  The machine triggered its '+chalk.bold(chalk[exitColor](result.exited.exit))+' exit'+(function (){
-      if (!result.exited.void) {
-        return ' and returned a value:\n   '+chalk.gray(result.exited.inspectedValue);
+    console.log('  '+chalk.bold(chalk[exitColor]('•'))+' \n  The machine triggered its '+chalk.bold(chalk[exitColor](result.exited.outcome))+' exit'+(function (){
+      if (!_.isUndefined(result.exited.output)) {
+        return ' and returned a value:\n   '+chalk.gray(result.exited.inspectedOutput);
       }
       return '.';
     })());
