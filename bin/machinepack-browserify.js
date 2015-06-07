@@ -5,7 +5,7 @@ require('machine-as-script')({
   friendlyName: 'Bundle machinepack',
 
 
-  description: 'Bundle the specified machinepack into a single JavaScript string for use in the browser.',
+  description: 'Bundle the specified machinepack into a single JavaScript file for use in the browser.',
 
 
   extendedDescription: 'The browserified JavaScript will be exposed within a [umd](https://github.com/forbeslindesay/umd) wrapper.',
