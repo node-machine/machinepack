@@ -15,6 +15,7 @@
     "machinepack-exec": "./bin/machinepack-exec.js",
     "machinepack-browse": "./bin/machinepack-browse.js",
     "machinepack-scrub": "./bin/machinepack-scrub.js",
+    "machinepack-browserify": "./bin/machinepack-browserify.js",
     "mp": "./bin/machinepack.js",
     "mp-about": "./bin/machinepack-about.js",
     "mp-info": "./bin/machinepack-info.js",
@@ -26,7 +27,8 @@
     "mp-rm": "./bin/machinepack-rm.js",
     "mp-exec": "./bin/machinepack-exec.js",
     "mp-browse": "./bin/machinepack-browse.js",
-    "mp-scrub": "./bin/machinepack-scrub.js"
+    "mp-scrub": "./bin/machinepack-scrub.js",
+    "mp-browserify": "./bin/machinepack-browserify.js"
   },
   "scripts": {
     "test": "node ./node_modules/mocha/bin -t 10000"
@@ -48,6 +50,7 @@
     "inquirer": "^0.8.0",
     "lodash": "^2.4.1",
     "machine": "^9.0.1",
+    "machinepack-browserify": "^0.3.0",
     "machinepack-fs": "^1.6.0",
     "machinepack-javascript": "^0.2.1",
     "machinepack-machines": "^5.0.4",
