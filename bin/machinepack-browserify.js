@@ -81,7 +81,7 @@ require('machine-as-script')({
           inputs.exportAs = packMetadata.variableName;
         }
 
-        // Bundle the machinepack and its dependenies into a single JavaScript file for use on the client.
+        // Bundle the machinepack and its dependencies into a single JavaScript file for use on the client.
         MPBrowserify.bundle({
           path: inputs.dir,
           exportAs: inputs.exportAs
