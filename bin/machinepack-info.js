@@ -9,7 +9,7 @@ var program = require('commander');
 var _ = require('lodash');
 var chalk = require('chalk');
 var Javascript = require('machinepack-javascript');
-var Machines = require('machinepack-machines');
+var Machinepacks = require('machinepack-localmachinepacks');
 
 
 
@@ -19,7 +19,7 @@ program
 
 
 
-Machines.readPackageJson({
+Machinepacks.readPackageJson({
   dir: process.cwd()
 }).exec({
   error: function(err) {

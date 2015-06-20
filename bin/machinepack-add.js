@@ -6,7 +6,7 @@
 
 var Path = require('path');
 var program = require('commander');
-var Machinepacks = require('machinepack-machines');
+var Machinepacks = require('machinepack-localmachinepacks');
 
 
 program

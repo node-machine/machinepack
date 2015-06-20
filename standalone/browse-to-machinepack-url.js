@@ -24,7 +24,7 @@ module.exports = require('machine').build({
   },
   fn: function (inputs, exits){
 
-    var Machines = require('machinepack-machines');
+    var Machines = require('machinepack-localmachinepacks');
     var util = require('util');
     var browseToUrl = require('open');
     var buildError = require('./build-error');

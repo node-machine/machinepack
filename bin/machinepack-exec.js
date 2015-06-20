@@ -77,7 +77,7 @@ Machine.build({
     var _ = require('lodash');
     var inquirer = require('inquirer');
     var Filesystem = require('machinepack-fs');
-    var Machinepacks = require('machinepack-machines');
+    var Machinepacks = require('machinepack-localmachinepacks');
 
     var machinepackPath = Path.resolve(process.cwd(), inputs.dir);
 

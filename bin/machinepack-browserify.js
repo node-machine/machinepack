@@ -54,7 +54,7 @@ require('machine-as-script')({
 
     var Path = require('path');
     var MPBrowserify = require('machinepack-browserify');
-    var MPMachines = require('machinepack-machines');
+    var MPMachines = require('machinepack-localmachinepacks');
     var Filesystem = require('machinepack-fs');
 
     // Ensure inputs.dir and inputs.destination are absolute paths

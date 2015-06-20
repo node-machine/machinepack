@@ -35,7 +35,7 @@ var scrubPack = require('machine').build({
     var path = require('path');
     var util = require('util');
     var _ = require('lodash');
-    var Machines = require('machinepack-machines');
+    var Machines = require('machinepack-localmachinepacks');
     var Filesystem = require('machinepack-fs');
     var gi = require('git-info');
 
