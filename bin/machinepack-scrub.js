@@ -34,6 +34,7 @@ var scrubPack = require('machine').build({
 
     var path = require('path');
     var util = require('util');
+    var _ = require('lodash');
     var Machines = require('machinepack-machines');
     var Filesystem = require('machinepack-fs');
     var gi = require('git-info');
@@ -62,10 +63,14 @@ var scrubPack = require('machine').build({
 
           // Ensure a devDependency exists for test-machinepack-mocha
           jsonData.devDependencies = jsonData.devDependencies||{};
-          jsonData.devDependencies['test-machinepack-mocha'] = '^0.2.2';
+          if (!jsonData.devDependencies['test-machinepack-mocha']) {
+            jsonData.devDependencies['test-machinepack-mocha'] = '^2.0.0';
+          }
           // Ensure a script exists for use with `npm test`
           jsonData.scripts = jsonData.scripts||{};
-          jsonData.scripts.test = 'node ./node_modules/test-machinepack-mocha/bin/testmachinepack-mocha.js';
+          if (!jsonData.scripts.test) {
+            jsonData.scripts.test = 'node ./node_modules/test-machinepack-mocha/bin/testmachinepack-mocha.js';
+          }
         }
         catch (e) {
           return exits.error(buildError('Unexpected error parsing or modifying package.json data:\n', e));
@@ -76,89 +81,106 @@ var scrubPack = require('machine').build({
         // update the package.json file with the repo url if we can get it.
         gi('repository', function(err, repoInfo) {
 
-          // Ignore errors-- just use the repo url if we can get it, otherwise ignore it.
-          if (err) { }
-          else {
-            try {
-              jsonData.repository = {
-                type: 'git',
-                url: repoInfo.repository
-              };
-            }
-            catch (e) {}
-          }
-
-          // Now take a guess at a `testsUrl` and add it to the `machinepack` object
-          // in the package.json data (unless one already exists)
           try {
-            if (!jsonData.machinepack.testsUrl) {
+
+            // Ignore errors-- just use the repo url if we can get it, otherwise ignore it.
+            repoInfo = repoInfo || {};
+            if (!err && _.isObject(repoInfo)) {
+
+              // Create alias to make it easier to remember
+              repoInfo.gitUrl = repoInfo.repository;
+
               // Assume github conventions and rip out metadata by matching against the
               // `owner/reponame` pattern in the repo URL
-              var ownerRepoStr = jsonData.repository.url.replace(/^.*github\.com[:\/]/, '');
-              ownerRepoStr = ownerRepoStr.replace(/^\/*/, '');
-              ownerRepoStr = ownerRepoStr.replace(/\.git$/, '');
-              ownerRepoStr = ownerRepoStr.replace(/\/*$/, '');
+              repoInfo.ownerStr = repoInfo.gitUrl.replace(/^.*github\.com[:\/]/, '');
+              repoInfo.ownerStr = repoInfo.ownerStr.replace(/^\/*/, '');
+              repoInfo.ownerStr = repoInfo.ownerStr.replace(/\.git$/, '');
+              repoInfo.ownerStr = repoInfo.ownerStr.replace(/\/*$/, '');
 
-              // Build tests URL using the ownerRepo string and assuming test runner is Travis CI.
-              jsonData.machinepack.testsUrl = util.format('https://travis-ci.org/%s',ownerRepoStr);
+              // Build tests URL using the ownerStr and assuming test runner is Travis CI.
+              repoInfo.testsUrl = util.format('https://travis-ci.org/%s',repoInfo.ownerStr);
             }
+
+            // If `repository` key is not set in package.json, and we have the data, set it.
+            if (!jsonData.repository || !jsonData.repository.url) {
+              if (repoInfo.gitUrl) {
+                jsonData.repository = {
+                  type: 'git',
+                  url: repoInfo.gitUrl
+                };
+              }
+            }
+
+            // Now take a guess at a `testsUrl` and add it to the `machinepack` object
+            // in the package.json data (unless one already exists)
+            if (!jsonData.machinepack.testsUrl) {
+              if (repoInfo.testsUrl) {
+                // Build tests URL using the ownerRepo string and assuming test runner is Travis CI.
+                jsonData.machinepack.testsUrl = repoInfo.testsUrl;
+              }
+            }
+
+            Filesystem.writeJson({
+              json: jsonData,
+              destination: packageJsonPath,
+              force: true
+            }).exec({
+
+              // An unexpected error occurred.
+              error: exits.error,
+
+              // OK.
+              success: function (){
+
+                // Ensure tests exist for each machine (don't overwrite any test files which already exist though)
+                Machines.scaffoldTests({
+                  dir: inputs.dir
+                }, {
+                  error: exits.error,
+                  notMachinepack: exits.notMachinepack,
+                  success: function (){
+
+                    // Copy file or directory located at source path to the destination path.
+                    Filesystem.cp({
+                      source: path.resolve(__dirname,'../templates/travis.template.yml'),
+                      destination: path.resolve(inputs.dir, '.travis.yml'),
+                    }).exec({
+                      // An unexpected error occurred.
+                      error: exits.error,
+                      // OK.
+                      success: function() {
+                        // (Re)generate a README file using the boilerplate, using fresh description and module name from package.json.
+                        //  --> (read file at source path, replace substrings with provided data, then write to destination path.)
+                        Filesystem.template({
+                          source: path.resolve(__dirname,'../templates/README.template.md'),
+                          destination: path.resolve(inputs.dir, 'README.md'),
+                          data: {
+                            moduleName: jsonData.name,
+                            description: jsonData.description,
+                            copyrightYear: (new Date()).getFullYear(),
+                            author: jsonData.author,
+                            testsUrl: jsonData.machinepack.testsUrl,
+                            license: jsonData.license||'MIT'
+                          },
+                          force: true
+                        }).exec({
+                          // An unexpected error occurred.
+                          error: exits.error,
+                          // OK.
+                          success: exits.success
+                        });
+                      }
+                    });
+                  }
+                });
+              }
+            });
+
           }
-          catch (e) {}
+          catch (e) {
+            return exits.error(e);
+          }
 
-          Filesystem.writeJson({
-            json: jsonData,
-            destination: packageJsonPath,
-            force: true
-          }).exec({
-
-            // An unexpected error occurred.
-            error: exits.error,
-
-            // OK.
-            success: function (){
-
-              // Ensure tests exist for each machine (don't overwrite any test files which already exist though)
-              Machines.scaffoldTests({
-                dir: inputs.dir
-              }, {
-                error: exits.error,
-                notMachinepack: exits.notMachinepack,
-                success: function (){
-
-                  // Copy file or directory located at source path to the destination path.
-                  Filesystem.cp({
-                    source: path.resolve(__dirname,'../templates/travis.template.yml'),
-                    destination: path.resolve(inputs.dir, '.travis.yml'),
-                  }).exec({
-                    // An unexpected error occurred.
-                    error: exits.error,
-                    // OK.
-                    success: function() {
-                      // (Re)generate a README file using the boilerplate, using fresh description and module name from package.json.
-                      //  --> (read file at source path, replace substrings with provided data, then write to destination path.)
-                      Filesystem.template({
-                        source: path.resolve(__dirname,'../templates/README.template.md'),
-                        destination: path.resolve(inputs.dir, 'README.md'),
-                        data: {
-                          moduleName: jsonData.name,
-                          description: jsonData.description,
-                          copyrightYear: (new Date()).getFullYear(),
-                          author: jsonData.author,
-                          license: jsonData.license||'MIT'
-                        },
-                        force: true
-                      }).exec({
-                        // An unexpected error occurred.
-                        error: exits.error,
-                        // OK.
-                        success: exits.success
-                      });
-                    }
-                  });
-                }
-              });
-            }
-          });
         });
 
       },

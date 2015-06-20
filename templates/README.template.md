@@ -21,7 +21,7 @@
 <%= description %>
 
 
-## Installation &nbsp; [![NPM version](https://badge.fury.io/js/<%= moduleName %>.svg)](http://badge.fury.io/js/<%= moduleName %>) [![Build Status](https://travis-ci.org/mikermcneil/<%= moduleName %>.png?branch=master)](https://travis-ci.org/mikermcneil/<%= moduleName %>)
+## Installation &nbsp; [![NPM version](https://badge.fury.io/js/<%= moduleName %>.svg)](http://badge.fury.io/js/<%= moduleName %>) [![Build Status](<%= testsUrl %>.png?branch=master)](<%= testsUrl %>)
 
 ```sh
 $ npm install <%= moduleName %>
