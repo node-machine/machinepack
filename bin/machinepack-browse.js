@@ -7,7 +7,7 @@
 
 var program = require('commander');
 var chalk = require('chalk');
-var browseToMachinepackUrl = require('../standalone/browse-to-machinepack-url');
+var LocalMachinepacks = require('machinepack-localmachinepacks');
 
 
 
@@ -22,7 +22,7 @@ program
 
 
 
-browseToMachinepackUrl({
+LocalMachinepacks.browseToPackUrl({
   dir: process.cwd(),
 
   // If optional command-line argument was provided, use it as the `toWhat`
