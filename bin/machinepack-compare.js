@@ -2,454 +2,464 @@
 
 require('machine-as-script')({
 
-  friendlyName: 'Compare machinepack',
+
+  args: ['pathToAbstractPack'],
 
 
-  description:
-    'Check if this machinepack satisfies the interface described by abstract pack '+
-    'in another directory.',
+  machine: {
 
 
-  extendedDescription:
-    'The comparison is semantic; i.e. it ignores metadata like `extendedDescription`.',
+    friendlyName: 'Compare machinepack',
 
 
-  cacheable: true,
+    description:
+      'Check if this machinepack satisfies the interface described by abstract pack '+
+      'in another directory.',
 
 
-  inputs: {
-
-    dir: {
-      description: 'The path to the machinepack directory.',
-      extendedDescription: 'Absolute path recommended.  If provided path is relative, will be resolved from pwd.  Defaults to current working directory.',
-      example: '/Users/mikermcneil/code/machinepack-whatever',
-      defaultsTo: './'
-    },
-
-    pathToAbstractPack: {
-      description: 'The path to the directory of the abstract machinepack.',
-      extendedDescription: 'Absolute path recommended.  If provided path is relative, will be resolved from pwd.',
-      example: '/Users/mikermcneil/code/waterline-driver-interface',
-      required: true
-    }
-    // TODO: build in certain abstract interfaces and allow them to be referenced
-    // by name as an alternative to specifying a path to an abstract pack; e.g.
-    // ```
-    // mp compare driver
-    // mp compare db-adapter
-    // mp compare fs-adapter
-    // mp compare view-engine
-    // # etc.
-    // ```
-
-  },
+    extendedDescription:
+      'The comparison is semantic; i.e. it ignores metadata like `extendedDescription`.',
 
 
-  exits: {
+    cacheable: true,
 
-    notMachinepack: {
-      description: 'The source path does not resolve to the root directory of a machinepack.'
-    },
 
-    notAbstractMachinepack: {
-      description:
-        'The provided path to the abstract pack interface does not resolve to the '+
-        'root directory of an abstract machinepack.'
-    },
+    inputs: {
 
-    success: {
-      outputVariableName: 'comparison',
-      example: {
-        errors: [{}],
-        warnings: [{}],
-        sourcePackInfo: { npmPackageName: 'machinepack-whatever' },
-        abstractPackInfo: { npmPackageName: 'waterline-driver-interface' },
-      }
-    }
-
-  },
-
-  fn: function (inputs, exits) {
-
-    var Path = require('path');
-    var _ = require('lodash');
-    var async = require('async');
-    var rttc = require('rttc');
-    var Machinepacks = require('machinepack-localmachinepacks');
-
-    // Ensure inputs.dir and inputs.pathToAbstractPack are absolute paths
-    // by resolving them from the current working directory.
-    inputs.dir = Path.resolve(inputs.dir);
-    inputs.pathToAbstractPack = Path.resolve(inputs.pathToAbstractPack);
-
-    // Load the signatures for the source pack and the abstract pack.
-    async.auto({
-
-      source: function loadSourceMachinepack(next){
-        Machinepacks.getSignature({
-          dir: inputs.dir
-        }).exec(next);
+      dir: {
+        description: 'The path to the machinepack directory.',
+        extendedDescription: 'Absolute path recommended.  If provided path is relative, will be resolved from pwd.  Defaults to current working directory.',
+        example: '/Users/mikermcneil/code/machinepack-whatever',
+        defaultsTo: './'
       },
 
-      abstract: function loadAbstractPackInterface(next) {
-        Machinepacks.getSignature({
-          dir: inputs.pathToAbstractPack
-        }).exec(next);
+      pathToAbstractPack: {
+        description: 'The path to the directory of the abstract machinepack.',
+        extendedDescription: 'Absolute path recommended.  If provided path is relative, will be resolved from pwd.',
+        example: '/Users/mikermcneil/code/waterline-driver-interface',
+        required: true
+      }
+      // TODO: build in certain abstract interfaces and allow them to be referenced
+      // by name as an alternative to specifying a path to an abstract pack; e.g.
+      // ```
+      // mp compare driver
+      // mp compare db-adapter
+      // mp compare fs-adapter
+      // mp compare view-engine
+      // # etc.
+      // ```
+
+    },
+
+
+    exits: {
+
+      notMachinepack: {
+        description: 'The source path does not resolve to the root directory of a machinepack.'
+      },
+
+      notAbstractMachinepack: {
+        description:
+          'The provided path to the abstract pack interface does not resolve to the '+
+          'root directory of an abstract machinepack.'
+      },
+
+      success: {
+        outputVariableName: 'comparison',
+        example: {
+          errors: [{}],
+          warnings: [{}],
+          sourcePackInfo: { npmPackageName: 'machinepack-whatever' },
+          abstractPackInfo: { npmPackageName: 'waterline-driver-interface' },
+        }
       }
 
-    }, function afterwards(err, async_data){
-      if (err) { return exits(err); }
-      // console.log(async_data.abstract);
+    },
 
+    fn: function (inputs, exits) {
 
-      // Now build the report which compares the two packs.
-      var comparisonReport = {
-        errors: [],
-        warnings: [],
-        sourcePackInfo: { npmPackageName: async_data.source.pack.npmPackageName },
-        abstractPackInfo: { npmPackageName: async_data.abstract.pack.npmPackageName },
-      };
-      // comparisonReport = FIXTURE_REPRESENTING_EXAMPLE_OF_RESULTS_FROM_COMPARISON;
+      var Path = require('path');
+      var _ = require('lodash');
+      var async = require('async');
+      var rttc = require('rttc');
+      var Machinepacks = require('machinepack-localmachinepacks');
 
+      // Ensure inputs.dir and inputs.pathToAbstractPack are absolute paths
+      // by resolving them from the current working directory.
+      inputs.dir = Path.resolve(inputs.dir);
+      inputs.pathToAbstractPack = Path.resolve(inputs.pathToAbstractPack);
 
-      // Here we look for:
-      //   *WARNINGS*
-      //   • unrecognized machines
-      //   • unrecognized inputs
-      //   • unrecognized exits
-      //   *ERRORS*
-      //   • missing machines
-      //   • missing inputs
-      //   • missing exits
-      //   • incompatible machine details
-      //   • incompatible inputs
-      //   • incompatible exits
+      // Load the signatures for the source pack and the abstract pack.
+      async.auto({
 
-      // First look for unrecognized machines.
-      _.each(async_data.source.machines, function (sourceMachineDef){
-        var isRecognized = _.contains(_.pluck(async_data.abstract.machines, 'identity'), sourceMachineDef.identity);
-        if (!isRecognized) {
-          comparisonReport.warnings.push({
-            problem: 'unrecognizedMachine',
-            machine: sourceMachineDef.identity
-          });
-        }
-      });
+        source: function loadSourceMachinepack(next){
+          Machinepacks.getSignature({
+            dir: inputs.dir
+          }).exec(next);
+        },
 
-
-      // Then look for missing machines, inputs and exits, as well as
-      // incompatible machine details, incompatible inputs, and incompatible
-      // exits AND unrecognized inputs & exits.
-      _.each(async_data.abstract.machines, function (abstractMachineDef){
-
-        // Check that the machine exists.
-        var sourceMachineDef = _.find(async_data.source.machines, { identity: abstractMachineDef.identity });
-        if (!sourceMachineDef) {
-          comparisonReport.errors.push({
-            problem: 'missingMachine',
-            machine: abstractMachineDef.identity
-          });
-          return;
+        abstract: function loadAbstractPackInterface(next) {
+          Machinepacks.getSignature({
+            dir: inputs.pathToAbstractPack
+          }).exec(next);
         }
 
-        // Check for incompatibilities in machine details.
-        var incompatibleDetailsFound;
-        var machineDetailsIncompatError = {
-          problem: 'incompatibleMachineDetails',
-          machine: abstractMachineDef.identity,
-          expecting: {}
+      }, function afterwards(err, async_data){
+        if (err) { return exits(err); }
+        // console.log(async_data.abstract);
+
+
+        // Now build the report which compares the two packs.
+        var comparisonReport = {
+          errors: [],
+          warnings: [],
+          sourcePackInfo: { npmPackageName: async_data.source.pack.npmPackageName },
+          abstractPackInfo: { npmPackageName: async_data.abstract.pack.npmPackageName },
         };
-        if (abstractMachineDef.cacheable === true) {
-          if (!sourceMachineDef.cacheable) {
-            incompatibleDetailsFound = true;
-            machineDetailsIncompatError.expecting.sideEffects = 'cacheable';
-          }
-        }
-        else if (abstractMachineDef.idempotent === true) {
-          if (!sourceMachineDef.idempotent && !sourceMachineDef.cacheable) {
-            incompatibleDetailsFound = true;
-            machineDetailsIncompatError.expecting.sideEffects = 'idempotent';
-          }
-        }
-        else {
-          if (sourceMachineDef.idempotent || sourceMachineDef.cacheable) {
-            incompatibleDetailsFound = true;
-            machineDetailsIncompatError.expecting.sideEffects = '';
-          }
-        }
-        if (abstractMachineDef.sync === true) {
-          if (!sourceMachineDef.sync) {
-            incompatibleDetailsFound = true;
-            machineDetailsIncompatError.expecting.sync = true;
-          }
-        }
-        else {
-          if (sourceMachineDef.sync) {
-            incompatibleDetailsFound = true;
-            machineDetailsIncompatError.expecting.sync = false;
-          }
-        }
-        if (incompatibleDetailsFound) {
-          comparisonReport.errors.push(machineDetailsIncompatError);
-        }
+        // comparisonReport = FIXTURE_REPRESENTING_EXAMPLE_OF_RESULTS_FROM_COMPARISON;
 
 
+        // Here we look for:
+        //   *WARNINGS*
+        //   • unrecognized machines
+        //   • unrecognized inputs
+        //   • unrecognized exits
+        //   *ERRORS*
+        //   • missing machines
+        //   • missing inputs
+        //   • missing exits
+        //   • incompatible machine details
+        //   • incompatible inputs
+        //   • incompatible exits
 
-
-
-
-
-        // Check for unrecognized inputs.
-        _.each(sourceMachineDef.inputs, function (unused, inputCodeName){
-          var isRecognized = _.contains(_.keys(abstractMachineDef.inputs), inputCodeName);
+        // First look for unrecognized machines.
+        _.each(async_data.source.machines, function (sourceMachineDef){
+          var isRecognized = _.contains(_.pluck(async_data.abstract.machines, 'identity'), sourceMachineDef.identity);
           if (!isRecognized) {
             comparisonReport.warnings.push({
-              problem: 'unrecognizedInput',
-              machine: abstractMachineDef.identity,
-              input: inputCodeName
+              problem: 'unrecognizedMachine',
+              machine: sourceMachineDef.identity
             });
           }
         });
 
 
+        // Then look for missing machines, inputs and exits, as well as
+        // incompatible machine details, incompatible inputs, and incompatible
+        // exits AND unrecognized inputs & exits.
+        _.each(async_data.abstract.machines, function (abstractMachineDef){
 
-        // Check for missing or incompatible inputs.
-        _.each(abstractMachineDef.inputs, function (abstractInputDef, abstractInputCodeName){
-
-          // Missing
-          var sourceInputDef = sourceMachineDef.inputs[abstractInputCodeName];
-          if (!sourceInputDef) {
+          // Check that the machine exists.
+          var sourceMachineDef = _.find(async_data.source.machines, { identity: abstractMachineDef.identity });
+          if (!sourceMachineDef) {
             comparisonReport.errors.push({
-              problem: 'missingInput',
-              machine: abstractMachineDef.identity,
-              input: abstractInputCodeName
+              problem: 'missingMachine',
+              machine: abstractMachineDef.identity
             });
             return;
           }
 
-          // Incompatible
-          var isIncompat;
-          var abstractTypeSchema = rttc.infer(abstractInputDef.example);
-          var incompatError = {
-            problem: 'incompatibleInput',
+          // Check for incompatibilities in machine details.
+          var incompatibleDetailsFound;
+          var machineDetailsIncompatError = {
+            problem: 'incompatibleMachineDetails',
             machine: abstractMachineDef.identity,
-            input: abstractInputCodeName,
             expecting: {}
           };
-          // should be required
-          if ( abstractInputDef.required ) {
-            if (!sourceInputDef.required) {
-              isIncompat = true;
-              incompatError.expecting.required = true;
+          if (abstractMachineDef.cacheable === true) {
+            if (!sourceMachineDef.cacheable) {
+              incompatibleDetailsFound = true;
+              machineDetailsIncompatError.expecting.sideEffects = 'cacheable';
             }
           }
-          // should NOT be required
+          else if (abstractMachineDef.idempotent === true) {
+            if (!sourceMachineDef.idempotent && !sourceMachineDef.cacheable) {
+              incompatibleDetailsFound = true;
+              machineDetailsIncompatError.expecting.sideEffects = 'idempotent';
+            }
+          }
           else {
-            if (sourceInputDef.required) {
-              isIncompat = true;
-              incompatError.expecting.required = false;
+            if (sourceMachineDef.idempotent || sourceMachineDef.cacheable) {
+              incompatibleDetailsFound = true;
+              machineDetailsIncompatError.expecting.sideEffects = '';
             }
           }
-          // should be readOnly
-          if ( abstractInputDef.readOnly ) {
-            if (!sourceInputDef.readOnly) {
-              isIncompat = true;
-              incompatError.expecting.readOnly = true;
+          if (abstractMachineDef.sync === true) {
+            if (!sourceMachineDef.sync) {
+              incompatibleDetailsFound = true;
+              machineDetailsIncompatError.expecting.sync = true;
             }
           }
-          // should NOT be readOnly
           else {
-            if (sourceInputDef.readOnly) {
-              isIncompat = true;
-              incompatError.expecting.readOnly = false;
+            if (sourceMachineDef.sync) {
+              incompatibleDetailsFound = true;
+              machineDetailsIncompatError.expecting.sync = false;
             }
           }
-          // should be constant
-          if ( abstractInputDef.constant ) {
-            if (!sourceInputDef.constant) {
-              isIncompat = true;
-              incompatError.expecting.constant = true;
-            }
+          if (incompatibleDetailsFound) {
+            comparisonReport.errors.push(machineDetailsIncompatError);
           }
-          // should NOT be constant
-          else {
-            if (sourceInputDef.constant) {
-              isIncompat = true;
-              incompatError.expecting.constant = false;
+
+
+
+
+
+
+
+          // Check for unrecognized inputs.
+          _.each(sourceMachineDef.inputs, function (unused, inputCodeName){
+            var isRecognized = _.contains(_.keys(abstractMachineDef.inputs), inputCodeName);
+            if (!isRecognized) {
+              comparisonReport.warnings.push({
+                problem: 'unrecognizedInput',
+                machine: abstractMachineDef.identity,
+                input: inputCodeName
+              });
             }
-          }
-          // should have a defaultsTo
-          if ( !_.isUndefined(abstractInputDef.defaultsTo) ) {
-            if ( _.isUndefined(sourceInputDef.defaultsTo) ) {
-              isIncompat = true;
-              incompatError.expecting.defaultsTo = abstractInputDef.defaultsTo;
+          });
+
+
+
+          // Check for missing or incompatible inputs.
+          _.each(abstractMachineDef.inputs, function (abstractInputDef, abstractInputCodeName){
+
+            // Missing
+            var sourceInputDef = sourceMachineDef.inputs[abstractInputCodeName];
+            if (!sourceInputDef) {
+              comparisonReport.errors.push({
+                problem: 'missingInput',
+                machine: abstractMachineDef.identity,
+                input: abstractInputCodeName
+              });
+              return;
             }
-            // and it should be like this
+
+            // Incompatible
+            var isIncompat;
+            var abstractTypeSchema = rttc.infer(abstractInputDef.example);
+            var incompatError = {
+              problem: 'incompatibleInput',
+              machine: abstractMachineDef.identity,
+              input: abstractInputCodeName,
+              expecting: {}
+            };
+            // should be required
+            if ( abstractInputDef.required ) {
+              if (!sourceInputDef.required) {
+                isIncompat = true;
+                incompatError.expecting.required = true;
+              }
+            }
+            // should NOT be required
             else {
-              var areDefaultTosEqual = rttc.isEqual( abstractInputDef.defaultsTo, sourceInputDef.defaultsTo, abstractTypeSchema );
-              if (!areDefaultTosEqual) {
+              if (sourceInputDef.required) {
+                isIncompat = true;
+                incompatError.expecting.required = false;
+              }
+            }
+            // should be readOnly
+            if ( abstractInputDef.readOnly ) {
+              if (!sourceInputDef.readOnly) {
+                isIncompat = true;
+                incompatError.expecting.readOnly = true;
+              }
+            }
+            // should NOT be readOnly
+            else {
+              if (sourceInputDef.readOnly) {
+                isIncompat = true;
+                incompatError.expecting.readOnly = false;
+              }
+            }
+            // should be constant
+            if ( abstractInputDef.constant ) {
+              if (!sourceInputDef.constant) {
+                isIncompat = true;
+                incompatError.expecting.constant = true;
+              }
+            }
+            // should NOT be constant
+            else {
+              if (sourceInputDef.constant) {
+                isIncompat = true;
+                incompatError.expecting.constant = false;
+              }
+            }
+            // should have a defaultsTo
+            if ( !_.isUndefined(abstractInputDef.defaultsTo) ) {
+              if ( _.isUndefined(sourceInputDef.defaultsTo) ) {
                 isIncompat = true;
                 incompatError.expecting.defaultsTo = abstractInputDef.defaultsTo;
               }
+              // and it should be like this
+              else {
+                var areDefaultTosEqual = rttc.isEqual( abstractInputDef.defaultsTo, sourceInputDef.defaultsTo, abstractTypeSchema );
+                if (!areDefaultTosEqual) {
+                  isIncompat = true;
+                  incompatError.expecting.defaultsTo = abstractInputDef.defaultsTo;
+                }
+              }
             }
-          }
-          // should NOT have a defaultsTo
-          else {
-            if ( !_.isUndefined(sourceInputDef.defaultsTo) ) {
-              isIncompat = true;
-              /////////////////////////////////////////////////////////////////////////////
-              // Note: We might consider making this a warning instead of an error.
-              /////////////////////////////////////////////////////////////////////////////
-              incompatError.expecting.noDefaultsTo = '`defaultsTo` should not be specified.';
-            }
-          }
-
-          // Should have an example which implies an equivalent type schema
-          var sourceTypeSchema = rttc.infer(sourceInputDef.example);
-          if (!_.isEqual(abstractTypeSchema, sourceTypeSchema)) {
-            isIncompat = true;
-            incompatError.expecting.example = abstractInputDef.example;
-          }
-
-          /////////////////////////////////////////////////////////////////////////////
-          // Note: We might consider checking tolerating not-equal _but compatible_
-          // type schemas (but still push warning either way).  E.g.:
-          // ```
-          // rttc.validate(sourceInputDef.example, abstractTypeSchema);
-          // ```
-          /////////////////////////////////////////////////////////////////////////////
-
-          if (isIncompat) {
-            comparisonReport.errors.push(incompatError);
-          }
-
-        });
-
-
-
-
-
-
-        // Check for unrecognized exits.
-        _.each(sourceMachineDef.exits, function (unused, exitCodeName){
-          var isRecognized = _.contains(_.keys(abstractMachineDef.exits), exitCodeName);
-          if (!isRecognized) {
-            comparisonReport.warnings.push({
-              problem: 'unrecognizedExit',
-              machine: abstractMachineDef.identity,
-              exit: exitCodeName
-            });
-          }
-        });
-
-        // Check for missing or incompatible exits.
-        _.each(abstractMachineDef.exits, function (abstractExitDef, abstractExitCodeName){
-
-          // Missing
-          var sourceExitDef = sourceMachineDef.exits[abstractExitCodeName];
-          if (!sourceExitDef) {
-            comparisonReport.errors.push({
-              problem: 'missingExit',
-              machine: abstractMachineDef.identity,
-              exit: abstractExitCodeName
-            });
-            return;
-          }
-
-          // Incompatible
-          var isIncompat;
-          var abstractTypeSchema = rttc.infer(abstractExitDef.example);
-          var incompatError = {
-            problem: 'incompatibleExit',
-            machine: abstractMachineDef.identity,
-            exit: abstractExitCodeName,
-            expecting: {}
-          };
-          // should have a example
-          if ( !_.isUndefined(abstractExitDef.example) && !_.isNull(abstractExitDef.example) ) {
-            incompatError.expecting.outputStyle = 'example';
-            if ( _.isUndefined(sourceExitDef.example) || _.isNull(sourceExitDef.example) ) {
-              isIncompat = true;
-              incompatError.expecting.example = abstractExitDef.example;
-            }
-            // and it should be like this
+            // should NOT have a defaultsTo
             else {
-              // Should have an example which implies an equivalent type schema
-              var sourceTypeSchema = rttc.infer(sourceExitDef.example);
-              if (!_.isEqual(abstractTypeSchema, sourceTypeSchema)) {
+              if ( !_.isUndefined(sourceInputDef.defaultsTo) ) {
+                isIncompat = true;
+                /////////////////////////////////////////////////////////////////////////////
+                // Note: We might consider making this a warning instead of an error.
+                /////////////////////////////////////////////////////////////////////////////
+                incompatError.expecting.noDefaultsTo = '`defaultsTo` should not be specified.';
+              }
+            }
+
+            // Should have an example which implies an equivalent type schema
+            var sourceTypeSchema = rttc.infer(sourceInputDef.example);
+            if (!_.isEqual(abstractTypeSchema, sourceTypeSchema)) {
+              isIncompat = true;
+              incompatError.expecting.example = abstractInputDef.example;
+            }
+
+            /////////////////////////////////////////////////////////////////////////////
+            // Note: We might consider checking tolerating not-equal _but compatible_
+            // type schemas (but still push warning either way).  E.g.:
+            // ```
+            // rttc.validate(sourceInputDef.example, abstractTypeSchema);
+            // ```
+            /////////////////////////////////////////////////////////////////////////////
+
+            if (isIncompat) {
+              comparisonReport.errors.push(incompatError);
+            }
+
+          });
+
+
+
+
+
+
+          // Check for unrecognized exits.
+          _.each(sourceMachineDef.exits, function (unused, exitCodeName){
+            var isRecognized = _.contains(_.keys(abstractMachineDef.exits), exitCodeName);
+            if (!isRecognized) {
+              comparisonReport.warnings.push({
+                problem: 'unrecognizedExit',
+                machine: abstractMachineDef.identity,
+                exit: exitCodeName
+              });
+            }
+          });
+
+          // Check for missing or incompatible exits.
+          _.each(abstractMachineDef.exits, function (abstractExitDef, abstractExitCodeName){
+
+            // Missing
+            var sourceExitDef = sourceMachineDef.exits[abstractExitCodeName];
+            if (!sourceExitDef) {
+              comparisonReport.errors.push({
+                problem: 'missingExit',
+                machine: abstractMachineDef.identity,
+                exit: abstractExitCodeName
+              });
+              return;
+            }
+
+            // Incompatible
+            var isIncompat;
+            var abstractTypeSchema = rttc.infer(abstractExitDef.example);
+            var incompatError = {
+              problem: 'incompatibleExit',
+              machine: abstractMachineDef.identity,
+              exit: abstractExitCodeName,
+              expecting: {}
+            };
+            // should have a example
+            if ( !_.isUndefined(abstractExitDef.example) && !_.isNull(abstractExitDef.example) ) {
+              incompatError.expecting.outputStyle = 'example';
+              if ( _.isUndefined(sourceExitDef.example) || _.isNull(sourceExitDef.example) ) {
                 isIncompat = true;
                 incompatError.expecting.example = abstractExitDef.example;
               }
-              /////////////////////////////////////////////////////////////////////////////
-              // Note: We might consider checking tolerating not-equal _but compatible_
-              // type schemas (but still push warning either way).  E.g.:
-              // ```
-              // rttc.validate(sourceExitDef.example, abstractTypeSchema);
-              // ```
-              /////////////////////////////////////////////////////////////////////////////
+              // and it should be like this
+              else {
+                // Should have an example which implies an equivalent type schema
+                var sourceTypeSchema = rttc.infer(sourceExitDef.example);
+                if (!_.isEqual(abstractTypeSchema, sourceTypeSchema)) {
+                  isIncompat = true;
+                  incompatError.expecting.example = abstractExitDef.example;
+                }
+                /////////////////////////////////////////////////////////////////////////////
+                // Note: We might consider checking tolerating not-equal _but compatible_
+                // type schemas (but still push warning either way).  E.g.:
+                // ```
+                // rttc.validate(sourceExitDef.example, abstractTypeSchema);
+                // ```
+                /////////////////////////////////////////////////////////////////////////////
+              }
             }
-          }
-          // should have a `like`
-          else if ( !_.isUndefined(abstractExitDef.like) && !_.isNull(abstractExitDef.like) ) {
-            incompatError.expecting.outputStyle = 'like';
-            if ( _.isUndefined(sourceExitDef.like) || _.isNull(sourceExitDef.like) ) {
-              isIncompat = true;
-              incompatError.expecting.like = abstractExitDef.like;
-            }
-            // and it should be like this
-            else {
-              if (sourceExitDef.like !== abstractExitDef.like) {
+            // should have a `like`
+            else if ( !_.isUndefined(abstractExitDef.like) && !_.isNull(abstractExitDef.like) ) {
+              incompatError.expecting.outputStyle = 'like';
+              if ( _.isUndefined(sourceExitDef.like) || _.isNull(sourceExitDef.like) ) {
                 isIncompat = true;
                 incompatError.expecting.like = abstractExitDef.like;
               }
+              // and it should be like this
+              else {
+                if (sourceExitDef.like !== abstractExitDef.like) {
+                  isIncompat = true;
+                  incompatError.expecting.like = abstractExitDef.like;
+                }
+              }
             }
-          }
-          // should have an `itemOf`
-          else if ( !_.isUndefined(abstractExitDef.itemOf) && !_.isNull(abstractExitDef.itemOf) ) {
-            incompatError.expecting.outputStyle = 'itemOf';
-            if ( _.isUndefined(sourceExitDef.itemOf) || _.isNull(sourceExitDef.itemOf) ) {
-              isIncompat = true;
-              incompatError.expecting.itemOf = abstractExitDef.itemOf;
-            }
-            // and it should be like this
-            else {
-              if (sourceExitDef.itemOf !== abstractExitDef.itemOf) {
+            // should have an `itemOf`
+            else if ( !_.isUndefined(abstractExitDef.itemOf) && !_.isNull(abstractExitDef.itemOf) ) {
+              incompatError.expecting.outputStyle = 'itemOf';
+              if ( _.isUndefined(sourceExitDef.itemOf) || _.isNull(sourceExitDef.itemOf) ) {
                 isIncompat = true;
                 incompatError.expecting.itemOf = abstractExitDef.itemOf;
               }
+              // and it should be like this
+              else {
+                if (sourceExitDef.itemOf !== abstractExitDef.itemOf) {
+                  isIncompat = true;
+                  incompatError.expecting.itemOf = abstractExitDef.itemOf;
+                }
+              }
             }
-          }
-          // should have a getExample
-          else if ( !_.isUndefined(abstractExitDef.getExample) && !_.isNull(abstractExitDef.getExample) ) {
-            incompatError.expecting.outputStyle = 'getExample';
-            if ( _.isUndefined(sourceExitDef.getExample) || _.isNull(sourceExitDef.getExample) ) {
-              isIncompat = true;
+            // should have a getExample
+            else if ( !_.isUndefined(abstractExitDef.getExample) && !_.isNull(abstractExitDef.getExample) ) {
+              incompatError.expecting.outputStyle = 'getExample';
+              if ( _.isUndefined(sourceExitDef.getExample) || _.isNull(sourceExitDef.getExample) ) {
+                isIncompat = true;
+              }
             }
-          }
-          // should have no output
-          else {
-            incompatError.expecting.outputStyle = 'void';
-            if (
-              ( _.isUndefined(sourceExitDef.example) || _.isNull(sourceExitDef.example) ) &&
-              ( _.isUndefined(sourceExitDef.like) || _.isNull(sourceExitDef.like) ) &&
-              ( _.isUndefined(sourceExitDef.itemOf) || _.isNull(sourceExitDef.itemOf) ) &&
-              ( _.isUndefined(sourceExitDef.getExample) || _.isNull(sourceExitDef.getExample) )
-            ) {
-              isIncompat = true;
+            // should have no output
+            else {
+              incompatError.expecting.outputStyle = 'void';
+              if (
+                ( _.isUndefined(sourceExitDef.example) || _.isNull(sourceExitDef.example) ) &&
+                ( _.isUndefined(sourceExitDef.like) || _.isNull(sourceExitDef.like) ) &&
+                ( _.isUndefined(sourceExitDef.itemOf) || _.isNull(sourceExitDef.itemOf) ) &&
+                ( _.isUndefined(sourceExitDef.getExample) || _.isNull(sourceExitDef.getExample) )
+              ) {
+                isIncompat = true;
+              }
             }
-          }
 
-          if (isIncompat) {
-            comparisonReport.errors.push(incompatError);
-          }
+            if (isIncompat) {
+              comparisonReport.errors.push(incompatError);
+            }
+          });
+
         });
 
-      });
+        // Finally, return the comparison report.
+        return exits.success(comparisonReport);
+      });//</async.auto>
+    }//</machine.fn>
 
-      // Finally, return the comparison report.
-      return exits.success(comparisonReport);
-    });//</async.auto>
-  }
+
+  }//</machine>
 
 
 }).exec({
