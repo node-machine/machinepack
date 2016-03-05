@@ -29,6 +29,7 @@ program.usage(chalk.gray('[options]')+' '+chalk.bold('<command>'))
 .command('cp <originalIdentity> <newIdentity>', 'copy machine')
 .command('init', 'make this module a machinepack')
 .command('scrub', 'scrub pack; generate missing tests, etc.')
+.command('compare', 'compare pack vs. an abstract interface')
 .command('about', 'about this module')
 .command('browserify', 'get a browser-ready version of this pack')
 .parse(process.argv);

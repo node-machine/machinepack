@@ -16,6 +16,7 @@
     "machinepack-browse": "./bin/machinepack-browse.js",
     "machinepack-scrub": "./bin/machinepack-scrub.js",
     "machinepack-browserify": "./bin/machinepack-browserify.js",
+    "machinepack-compare": "./bin/machinepack-compare.js",
     "mp": "./bin/machinepack.js",
     "mp-about": "./bin/machinepack-about.js",
     "mp-info": "./bin/machinepack-info.js",
@@ -28,7 +29,8 @@
     "mp-exec": "./bin/machinepack-exec.js",
     "mp-browse": "./bin/machinepack-browse.js",
     "mp-scrub": "./bin/machinepack-scrub.js",
-    "mp-browserify": "./bin/machinepack-browserify.js"
+    "mp-browserify": "./bin/machinepack-browserify.js",
+    "mp-compare": "./bin/machinepack-compare.js"
   },
   "scripts": {
     "test": "node ./node_modules/mocha/bin -t 10000"
@@ -44,11 +46,12 @@
   "author": "Mike McNeil",
   "license": "MIT",
   "dependencies": {
+    "async": "1.5.2",
     "chalk": "^0.5.1",
     "commander": "^2.5.1",
     "git-info": "^1.0.1",
     "inquirer": "^0.8.0",
-    "lodash": "^2.4.1",
+    "lodash": "3.10.1",
     "machine": "^11.0.1",
     "machine-as-script": "^1.1.2",
     "machinepack-browserify": "^1.0.0",
@@ -58,5 +61,8 @@
     "machinepack-process": "^1.0.2",
     "open": "0.0.5",
     "yargs": "^1.3.3"
+  },
+  "devDependencies": {
+    "rttc": "^9.3.0"
   }
 }
