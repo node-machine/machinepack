@@ -38,7 +38,14 @@ require('machine-as-script')({
         extendedDescription: 'Absolute path recommended.  If provided path is relative, will be resolved from pwd.',
         example: '/Users/mikermcneil/code/waterline-driver-interface',
         required: true
+      },
+
+      verbose: {
+        description: 'If set, harmless compatibility notices will also be displayed.',
+        example: false,
+        defaultsTo: false
       }
+
       // TODO: build in certain abstract interfaces and allow them to be referenced
       // by name as an alternative to specifying a path to an abstract pack; e.g.
       // ```
@@ -69,8 +76,10 @@ require('machine-as-script')({
         example: {
           errors: [{}],
           warnings: [{}],
+          notices: [{}],
           sourcePackInfo: { npmPackageName: 'machinepack-whatever' },
           abstractPackInfo: { npmPackageName: 'waterline-driver-interface' },
+          generatedWithOpts: '==='
         }
       }
 
@@ -113,15 +122,18 @@ require('machine-as-script')({
         var comparisonReport = {
           errors: [],
           warnings: [],
+          notices: [],
           sourcePackInfo: { npmPackageName: async_data.source.pack.npmPackageName },
           abstractPackInfo: { npmPackageName: async_data.abstract.pack.npmPackageName },
+          generatedWithOpts: inputs,
         };
         // comparisonReport = FIXTURE_REPRESENTING_EXAMPLE_OF_RESULTS_FROM_COMPARISON;
 
 
         // Here we look for:
-        //   *WARNINGS*
+        //   *NOTICES*
         //   • unrecognized machines
+        //   *WARNINGS*
         //   • unrecognized inputs
         //   • unrecognized exits
         //   *ERRORS*
@@ -136,7 +148,7 @@ require('machine-as-script')({
         _.each(async_data.source.machines, function (sourceMachineDef){
           var isRecognized = _.contains(_.pluck(async_data.abstract.machines, 'identity'), sourceMachineDef.identity);
           if (!isRecognized) {
-            comparisonReport.warnings.push({
+            comparisonReport.notices.push({
               problem: 'unrecognizedMachine',
               machine: sourceMachineDef.identity
             });
@@ -492,13 +504,15 @@ require('machine-as-script')({
       console.log('There are %s compatibility '+chalk.red('error(s)')+':', chalk.bold(chalk.red(comparison.errors.length)));
       console.log('-------------------------------------------------------');
     }
-    else { console.log('No compatibility errors!   \\o/ '); }
+    else {
+      console.log('No compatibility '+chalk.red('errors')+'!   \\o/ ');
+    }
     _.each(comparison.errors, function (error, i) {
 
       switch (error.problem) {
         case 'missingMachine':
           console.log(
-            ' %d.  Missing machine (`%s`).',
+            chalk.red(' %d.')+'  Missing machine (`%s`).',
             i+1, error.machine
           );
           break;
@@ -506,7 +520,7 @@ require('machine-as-script')({
 
         case 'incompatibleMachineDetails':
           console.log(
-            ' %d.  Incompatible machine details in `%s`.\n%sExpecting:',
+            chalk.red(' %d.')+'  Incompatible machine details in `%s`.\n%sExpecting:',
             i+1, error.machine, ' '+_.repeat(' ',(i+1)/10)+'     • ', util.inspect(error.expecting, {depth: null})
           );
           console.log();
@@ -515,7 +529,7 @@ require('machine-as-script')({
 
         case 'missingInput':
           console.log(
-            ' %d.  Missing input (`%s`) in `%s` machine.',
+            chalk.red(' %d.')+'  Missing input (`%s`) in `%s` machine.',
             i+1, error.input, error.machine
           );
           break;
@@ -523,7 +537,7 @@ require('machine-as-script')({
 
         case 'incompatibleInput':
           console.log(
-            ' %d.  Incompatible input (`%s`) in `%s` machine.\n%sExpecting:',
+            chalk.red(' %d.')+'  Incompatible input (`%s`) in `%s` machine.\n%sExpecting:',
             i+1, error.input, error.machine, ' '+_.repeat(' ',(i+1)/10)+'     • ', util.inspect(error.expecting, {depth: null})
           );
           console.log();
@@ -532,7 +546,7 @@ require('machine-as-script')({
 
         case 'missingExit':
           console.log(
-            ' %d.  Missing exit (`%s`) in `%s` machine.',
+            chalk.red(' %d.')+'  Missing exit (`%s`) in `%s` machine.',
             i+1, error.exit, error.machine
           );
           break;
@@ -540,7 +554,7 @@ require('machine-as-script')({
 
         case 'incompatibleExit':
           console.log(
-            ' %d.  Incompatible exit (`%s`) in `%s` machine.\n%sExpecting:',
+            chalk.red(' %d.')+'  Incompatible exit (`%s`) in `%s` machine.\n%sExpecting:',
             i+1, error.exit, error.machine, ' '+_.repeat(' ',(i+1)/10)+'     • ', util.inspect(error.expecting, {depth: null})
           );
           console.log();
@@ -556,30 +570,50 @@ require('machine-as-script')({
       console.log('There are %s compatibility '+chalk.yellow('warning(s)')+':', chalk.bold(chalk.yellow(comparison.warnings.length)));
       console.log('-------------------------------------------------------');
     }
-    else { console.log('No compatibility warnings!   \\o/ '); }
+    else {
+      console.log('No compatibility '+chalk.yellow('warnings')+'!   \\o/ ');
+    }
     _.each(comparison.warnings, function (warning, i) {
       switch (warning.problem) {
-        case 'unrecognizedMachine':
-          console.log(
-            ' %d.  Unrecognized machine (`%s`).',
-            i+1, warning.machine
-          );
-          break;
         case 'unrecognizedInput':
           console.log(
-            ' %d.  Unrecognized input (`%s`) in `%s` machine.',
+            chalk.yellow(' %d.')+'  Unrecognized input (`%s`) in `%s` machine.',
             i+1, warning.input, warning.machine
           );
           break;
         case 'unrecognizedExit':
           console.log(
-            ' %d.  Unrecognized exit (`%s`) in `%s` machine.',
+            chalk.yellow(' %d.')+'  Unrecognized exit (`%s`) in `%s` machine.',
             i+1, warning.exit, warning.machine
           );
           break;
         default: throw new Error('Consistency violation: Unrecognized problem code (`'+warning.problem+'`)');
       }
     });//</each warning>
+
+
+    console.log();
+    if (comparison.notices.length > 0) {
+      if (comparison.generatedWithOpts.verbose) {
+        console.log('There are also %s harmless compatibility '+chalk.green('notices(s)')+':', chalk.bold(chalk.green(comparison.notices.length)));
+        console.log('-------------------------------------------------------');
+        _.each(comparison.notices, function (notice, i) {
+          switch (notice.problem) {
+            case 'unrecognizedMachine':
+              console.log(
+                chalk.green(' %d.')+'  Extra machine (`%s`).',
+                i+1, notice.machine
+              );
+              break;
+            default: throw new Error('Consistency violation: Unrecognized problem code (`'+notice.problem+'`)');
+          }
+        });//</each notice>
+      }
+      else {
+        console.log(chalk.gray('There are also %s harmless compatibility notice(s).'), chalk.bold(comparison.notices.length));
+        console.log(chalk.gray('(to display them, run `mp compare --verbose`)'));
+      }
+    }
 
     // TODO (as time permits): prettify and/or group output
     //
