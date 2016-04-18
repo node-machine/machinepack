@@ -65,7 +65,12 @@ Machinepacks.readPackageJson({
 
     console.log(chalk.bold('INSTALLATION'));
     // console.log();
-    console.log(chalk.white('     npm install ' + chalk.bold(machinepack.npmPackageName) + '@^' + machinepack.version + ' --save'));
+    console.log(chalk.white(util.format('     npm install %s@^%s --save %s',
+      chalk.bold(machinepack.npmPackageName),
+      machinepack.version,
+      (machinepack.usesPublicRegistry === false) ? '--registry=' + machinepack.registry : ''
+    )));
+
     console.log();
     console.log();
 
