@@ -297,6 +297,20 @@ require('machine-as-script')({
                 incompatError.expecting.constant = false;
               }
             }
+            // should be an exemplar
+            if (abstractInputDef.isExemplar) {
+              if (!sourceInputDef.isExemplar) {
+                isIncompat = true;
+                incompatError.expecting.isExemplar = true;
+              }
+            }
+            // should NOT be an exemplar
+            else {
+              if (sourceInputDef.isExemplar) {
+                isIncompat = true;
+                incompatError.expecting.isExemplar = false;
+              }
+            }
             // should have a defaultsTo
             if ( !_.isUndefined(abstractInputDef.defaultsTo) ) {
               if ( _.isUndefined(sourceInputDef.defaultsTo) ) {
@@ -324,10 +338,13 @@ require('machine-as-script')({
             }
 
             // Should have an example which implies an equivalent type schema
-            var sourceTypeSchema = rttc.infer(sourceInputDef.example);
-            if (!_.isEqual(abstractTypeSchema, sourceTypeSchema)) {
-              isIncompat = true;
-              incompatError.expecting.example = abstractInputDef.example;
+            // (note that `example` might not be defined if `isExemplar: true`)
+            if (!_.isUndefined(sourceInputDef.example)) {
+              var sourceTypeSchema = rttc.infer(sourceInputDef.example);
+              if (!_.isEqual(abstractTypeSchema, sourceTypeSchema)) {
+                isIncompat = true;
+                incompatError.expecting.example = abstractInputDef.example;
+              }
             }
 
             /////////////////////////////////////////////////////////////////////////////
