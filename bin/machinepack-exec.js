@@ -118,7 +118,7 @@ Machine.build({
           });
 
         })(function (err, _identity){
-          if (err) return exits(err);
+          if (err) { return exits(err); }
 
           // Expose _identity on closure scope for convenience. (this is a hack)
           identity = _identity;

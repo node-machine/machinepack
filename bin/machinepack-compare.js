@@ -489,10 +489,10 @@ require('machine-as-script')({
             else {
               incompatError.expecting.outputStyle = 'void';
               if (
-                ( _.isUndefined(sourceExitDef.example) || _.isNull(sourceExitDef.example) ) &&
-                ( _.isUndefined(sourceExitDef.like) || _.isNull(sourceExitDef.like) ) &&
-                ( _.isUndefined(sourceExitDef.itemOf) || _.isNull(sourceExitDef.itemOf) ) &&
-                ( _.isUndefined(sourceExitDef.getExample) || _.isNull(sourceExitDef.getExample) )
+                ( !_.isUndefined(sourceExitDef.example) && !_.isNull(sourceExitDef.example) ) ||
+                ( !_.isUndefined(sourceExitDef.like) && !_.isNull(sourceExitDef.like) ) ||
+                ( !_.isUndefined(sourceExitDef.itemOf) && !_.isNull(sourceExitDef.itemOf) ) ||
+                ( !_.isUndefined(sourceExitDef.getExample) && !_.isNull(sourceExitDef.getExample) )
               ) {
                 isIncompat = true;
               }
