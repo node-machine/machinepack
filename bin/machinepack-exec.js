@@ -229,13 +229,16 @@ Machine.build({
 
     // Compute command to use when running again
     var cmd = ' machinepack exec '+identity;
-    _.each(result.withInputs, function (configuredInput){
+    _.each(result.withInputs, function (configuredInputInfo){
 
       // Skip protected inputs (they need to be re-entered)
-      if (configuredInput.protect) return;
+      if (configuredInputInfo.protect) { return; }
+
+      // Skip `--version` (because it doesn't work)
+      if (configuredInputInfo.name === 'version') { return; }
 
       cmd += ' ';
-      cmd += '--'+configuredInput.name+'=\''+configuredInput.value.replace(/'/g,'\'\\\'\'')+'\'';
+      cmd += '--'+configuredInputInfo.name+'=\''+configuredInput.value.replace(/'/g,'\'\\\'\'')+'\'';
     });
 
     console.log(chalk.white(' To run again:'));
