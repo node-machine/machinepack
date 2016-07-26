@@ -238,7 +238,7 @@ Machine.build({
       if (configuredInputInfo.name === 'version') { return; }
 
       cmd += ' ';
-      cmd += '--'+configuredInputInfo.name+'=\''+configuredInput.value.replace(/'/g,'\'\\\'\'')+'\'';
+      cmd += '--'+configuredInputInfo.name+'=\''+configuredInputInfo.value.replace(/'/g,'\'\\\'\'')+'\'';
     });
 
     console.log(chalk.white(' To run again:'));
