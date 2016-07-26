@@ -283,6 +283,20 @@ require('machine-as-script')({
                 incompatError.expecting.readOnly = false;
               }
             }
+            // should have `protect: true`
+            if (abstractInputDef.protect) {
+              if (!sourceInputDef.protect) {
+                isIncompat = true;
+                incompatError.expecting.protect = true;
+              }
+            }
+            // should NOT have `protect: true`
+            else {
+              if (sourceInputDef.protect) {
+                isIncompat = true;
+                incompatError.expecting.protect = false;
+              }
+            }
             // should be constant
             if ( abstractInputDef.constant ) {
               if (!sourceInputDef.constant) {
