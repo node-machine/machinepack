@@ -382,6 +382,10 @@ require('machine-as-script')({
 
           // Check for unrecognized exits.
           _.each(sourceMachineDef.exits, function (unused, exitCodeName){
+            // If this is the `error` exit, then we won't consider it unrecognized.
+            // (But it really shouldn't be there in the first place.)
+            if (exitCodeName === 'error') { return; }
+
             var isRecognized = _.contains(_.keys(abstractMachineDef.exits), exitCodeName);
             if (!isRecognized) {
               comparisonReport.warnings.push({
@@ -394,6 +398,11 @@ require('machine-as-script')({
 
           // Check for missing or incompatible exits.
           _.each(abstractMachineDef.exits, function (abstractExitDef, abstractExitCodeName){
+
+            // If this is the `error` exit, then we won't check if it's missing,
+            // and we won't bother comparing its properties.
+            // (it really shouldn't be there in the first place.)
+            if (abstractExitCodeName === 'error') { return; }
 
             // Missing
             var sourceExitDef = sourceMachineDef.exits[abstractExitCodeName];
@@ -416,7 +425,7 @@ require('machine-as-script')({
               expecting: {}
             };
             // should have a example
-            if ( !_.isUndefined(abstractExitDef.example) && !_.isNull(abstractExitDef.example) ) {
+            if (!_.isUndefined(abstractExitDef.example) && !_.isNull(abstractExitDef.example)) {
               incompatError.expecting.outputStyle = 'example';
               if ( _.isUndefined(sourceExitDef.example) || _.isNull(sourceExitDef.example) ) {
                 isIncompat = true;
