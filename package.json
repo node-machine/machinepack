@@ -33,7 +33,7 @@
     "mp-compare": "./bin/machinepack-compare.js"
   },
   "scripts": {
-    "test": "node ./node_modules/mocha/bin -t 10000"
+    "test": "echo 'N/A'"
   },
   "keywords": [
     "node-machine",
@@ -60,9 +60,7 @@
     "machinepack-localmachinepacks": "^1.1.0",
     "machinepack-process": "^1.0.2",
     "open": "0.0.5",
-    "yargs": "1.3.3"
-  },
-  "devDependencies": {
+    "yargs": "1.3.3",
     "rttc": "^9.3.0"
   }
 }
