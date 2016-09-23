@@ -137,7 +137,7 @@ require('machine-as-script')({
       //   • missing machines
       //   • missing inputs
       //   • missing exits
-      //   • incompatible machine details
+      //   • incompatible machine details (/guarantees)
       //   • incompatible inputs
       //   • incompatible exits
 
@@ -175,24 +175,31 @@ require('machine-as-script')({
           machine: abstractMachineDef.identity,
           expecting: {}
         };
-        if (abstractMachineDef.cacheable === true) {
-          if (!sourceMachineDef.cacheable) {
+        var isSourceMachineCacheable = (sourceMachineDef.cacheable === true || sourceMachineDef.sideEffects === 'cacheable');
+        var isSourceMachineIdempotent = (sourceMachineDef.idempotent === true || sourceMachineDef.sideEffects === 'idempotent');
+        var isAbstractMachineCacheable = (abstractMachineDef.cacheable === true || abstractMachineDef.sideEffects === 'cacheable');
+        var isAbstractMachineIdempotent = (abstractMachineDef.idempotent === true || abstractMachineDef.sideEffects === 'idempotent');
+
+        if (isAbstractMachineCacheable) {
+          if (!isSourceMachineCacheable) {
             incompatibleDetailsFound = true;
             machineDetailsIncompatError.expecting.sideEffects = 'cacheable';
           }
         }
-        else if (abstractMachineDef.idempotent === true) {
-          if (!sourceMachineDef.idempotent && !sourceMachineDef.cacheable) {
+        else if (isAbstractMachineIdempotent) {
+          // It's ok for the source machine to make a STRONGER guarantee
+          // (i.e. if abstract machine declares itself "idempotent", then it's still ok if an implementing source machine declares itself "cacheable")
+          if (!isSourceMachineIdempotent && !isSourceMachineCacheable) {
             incompatibleDetailsFound = true;
             machineDetailsIncompatError.expecting.sideEffects = 'idempotent';
           }
         }
         else {
-          if (sourceMachineDef.idempotent || sourceMachineDef.cacheable) {
-            incompatibleDetailsFound = true;
-            machineDetailsIncompatError.expecting.sideEffects = '';
-          }
+          // It's ok for the source machine to make a STRONGER guarantee.
+          // (i.e. if abstract machine makes no side effects declaration, then it's still ok
+          //  for an implementing source machine to declare itself "cacheable" or "idempotent")
         }
+
         if (abstractMachineDef.sync === true) {
           if (!sourceMachineDef.sync) {
             incompatibleDetailsFound = true;
@@ -205,6 +212,14 @@ require('machine-as-script')({
             machineDetailsIncompatError.expecting.sync = false;
           }
         }
+
+        if (abstractMachineDef.habitat) {
+          if (sourceMachineDef.habitat !== abstractMachineDef.habitat) {
+            incompatibleDetailsFound = true;
+            machineDetailsIncompatError.expecting.habitat = abstractMachineDef.habitat;
+          }
+        }
+
         if (incompatibleDetailsFound) {
           comparisonReport.errors.push(machineDetailsIncompatError);
         }
@@ -414,33 +429,47 @@ require('machine-as-script')({
 
           // Incompatible
           var isIncompat;
-          var abstractTypeSchema = rttc.infer(abstractExitDef.example);
+          var sourceOutputExemplar;
+          if (!_.isUndefined(sourceExitDef.outputExample)) {
+            sourceOutputExemplar = sourceExitDef.outputExample;
+          }
+          else {
+            sourceOutputExemplar = sourceExitDef.example;
+          }
+          var abstractOutputExemplar;
+          if (!_.isUndefined(abstractExitDef.outputExample)) {
+            abstractOutputExemplar = abstractExitDef.outputExample;
+          }
+          else {
+            abstractOutputExemplar = abstractExitDef.example;
+          }
+          var abstractTypeSchema = rttc.infer(abstractOutputExemplar);
           var incompatError = {
             problem: 'incompatibleExit',
             machine: abstractMachineDef.identity,
             exit: abstractExitCodeName,
             expecting: {}
           };
-          // should have a example
-          if (!_.isUndefined(abstractExitDef.example) && !_.isNull(abstractExitDef.example)) {
+          // should have an output example
+          if (!_.isUndefined(abstractOutputExemplar) && !_.isNull(abstractOutputExemplar)) {
             incompatError.expecting.outputStyle = 'example';
-            if ( _.isUndefined(sourceExitDef.example) || _.isNull(sourceExitDef.example) ) {
+            if ( _.isUndefined(sourceOutputExemplar) || _.isNull(sourceOutputExemplar) ) {
               isIncompat = true;
-              incompatError.expecting.example = abstractExitDef.example;
+              incompatError.expecting.example = abstractOutputExemplar;
             }
             // and it should be like this
             else {
               // Should have an example which implies an equivalent type schema
-              var sourceTypeSchema = rttc.infer(sourceExitDef.example);
+              var sourceTypeSchema = rttc.infer(sourceOutputExemplar);
               if (!_.isEqual(abstractTypeSchema, sourceTypeSchema)) {
                 isIncompat = true;
-                incompatError.expecting.example = abstractExitDef.example;
+                incompatError.expecting.example = abstractOutputExemplar;
               }
               /////////////////////////////////////////////////////////////////////////////
               // Note: We might consider checking tolerating not-equal _but compatible_
               // type schemas (but still push warning either way).  E.g.:
               // ```
-              // rttc.validate(sourceExitDef.example, abstractTypeSchema);
+              // rttc.validate(sourceOutputExemplar, abstractTypeSchema);
               // ```
               /////////////////////////////////////////////////////////////////////////////
             }
@@ -486,7 +515,7 @@ require('machine-as-script')({
           else {
             incompatError.expecting.outputStyle = 'void';
             if (
-              ( !_.isUndefined(sourceExitDef.example) && !_.isNull(sourceExitDef.example) ) ||
+              ( !_.isUndefined(sourceOutputExemplar) && !_.isNull(sourceOutputExemplar) ) ||
               ( !_.isUndefined(sourceExitDef.like) && !_.isNull(sourceExitDef.like) ) ||
               ( !_.isUndefined(sourceExitDef.itemOf) && !_.isNull(sourceExitDef.itemOf) ) ||
               ( !_.isUndefined(sourceExitDef.getExample) && !_.isNull(sourceExitDef.getExample) )
@@ -675,7 +704,7 @@ require('machine-as-script')({
     //       => `accidentallyPokedUser`
     //   ° 3 incompatible exit(s):
     //       => `success`
-    //          - Example must imply the following type schema:
+    //          - Output example must imply the following type schema:
     //            {
     //              gramsConsumed: 'number',
     //              stillHungry: 'boolean'
